@@ -17,6 +17,7 @@ export const donationCreateSchema = z.object({
   donorEmail: z
     .string()
     .trim()
+    .max(255, "Email maksimal 255 karakter.")
     .email("Format email tidak valid.")
     .or(z.literal(""))
     .optional(),

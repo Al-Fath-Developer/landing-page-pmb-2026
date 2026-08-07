@@ -27,7 +27,6 @@ interface DonationFormInput {
   donorEmail: string;
   message: string;
   isAnonymous: boolean;
-  showPublic: boolean;
 }
 
 interface DonorRecord {
@@ -58,7 +57,6 @@ export default function DonationPage() {
     donorEmail: "",
     message: "",
     isAnonymous: false,
-    showPublic: false, // Default is privacy-conscious
   });
 
   // Client-side validation errors
@@ -230,10 +228,6 @@ export default function DonationPage() {
     setDonationState("submitting");
 
     try {
-      // Map form fields to API contract definitions
-      const showPublicName = !formInput.isAnonymous && formInput.showPublic;
-      const showPublicMessage = !formInput.isAnonymous && formInput.showPublic;
-
       const response = await fetch("/api/donations", {
         method: "POST",
         headers: {
@@ -244,8 +238,8 @@ export default function DonationPage() {
           donorEmail: formInput.donorEmail || undefined,
           amount: formInput.amount,
           message: formInput.message || undefined,
-          showPublicName,
-          showPublicMessage,
+          showPublicName: !formInput.isAnonymous,
+          showPublicMessage: true,
         }),
       });
 
@@ -367,16 +361,22 @@ export default function DonationPage() {
                 </div>
 
                 {/* Custom Amount Field */}
-                <div className="relative mt-2">
-                  <span className="absolute inset-y-0 left-0 flex items-center pl-4 font-heading text-xs text-zinc-500 dark:text-zinc-400">
-                    NOMINAL LAINNYA: Rp
-                  </span>
+                <div className="relative mt-5">
+                  <label className="block font-heading text-xs uppercase tracking-wide">
+                    Nominal Lainnya <span className="text-red-500">*</span>
+                  </label>
                   <input
                     type="text"
                     value={customAmountStr}
                     onChange={handleCustomAmountChange}
+                    onFocus={() => {
+                      setActivePreset(null);
+                      if (customAmountStr === "") {
+                        setFormInput((prev) => ({ ...prev, amount: 0 }));
+                      }
+                    }}
                     placeholder="Masukkan jumlah donasi..."
-                    className="w-full border-[3px] border-black bg-white py-3 pl-36 pr-4 font-mono text-xs shadow-shadow focus:outline-none focus:bg-zinc-50 dark:bg-[#2c2c2c] dark:text-white dark:focus:bg-zinc-800"
+                    className="w-full border-[3px] border-black bg-white py-3 pl-3 pr-4 font-mono text-xs shadow-shadow transition-all duration-200 focus:outline-none focus:bg-zinc-50 focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:bg-[#2c2c2c] dark:text-white dark:focus:bg-zinc-800"
                   />
                 </div>
                 {errors.amount && (
@@ -403,6 +403,20 @@ export default function DonationPage() {
                   {errors.donorName && (
                     <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorName}</p>
                   )}
+                  {/* Anonymous Checkbox */}
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="checkbox"
+                      id="isAnonymous"
+                      name="isAnonymous"
+                      checked={formInput.isAnonymous}
+                      onChange={handleInputChange}
+                      className="size-4 border-[2px] border-black checked:bg-accent-orange cursor-pointer"
+                    />
+                    <label htmlFor="isAnonymous" className="font-heading text-[10px] sm:text-xs uppercase tracking-wide cursor-pointer select-none">
+                      Sembunyikan nama saya (Hamba Allah)
+                    </label>
+                  </div>
                 </div>
 
                 {/* Donor Email */}
@@ -440,39 +454,6 @@ export default function DonationPage() {
                   maxLength={150}
                   className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
                 />
-              </div>
-
-              {/* Consent Options */}
-              <div className="space-y-3 bg-zinc-50 p-4 border-[2px] border-black dark:bg-[#252525]">
-                {/* Anonymous Checkbox */}
-                <div className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    id="isAnonymous"
-                    name="isAnonymous"
-                    checked={formInput.isAnonymous}
-                    onChange={handleInputChange}
-                    className="size-5 border-[3px] border-black checked:bg-accent-orange cursor-pointer"
-                  />
-                  <label htmlFor="isAnonymous" className="font-heading text-xs uppercase tracking-wide cursor-pointer select-none">
-                    Sembunyikan nama saya (Hamba Allah)
-                  </label>
-                </div>
-
-                {/* Public Display Consent Checkbox */}
-                <div className="flex items-center gap-3 border-t border-black/10 pt-2 dark:border-white/10">
-                  <input
-                    type="checkbox"
-                    id="showPublic"
-                    name="showPublic"
-                    checked={formInput.showPublic}
-                    onChange={handleInputChange}
-                    className="size-5 border-[3px] border-black checked:bg-accent-orange cursor-pointer"
-                  />
-                  <label htmlFor="showPublic" className="font-heading text-[10px] sm:text-xs uppercase tracking-wide cursor-pointer select-none">
-                    Tampilkan nama saya di Papan Apresiasi Donatur
-                  </label>
-                </div>
               </div>
 
               {/* Submit Button */}
@@ -642,7 +623,6 @@ export default function DonationPage() {
                       donorEmail: "",
                       message: "",
                       isAnonymous: false,
-                      showPublic: false,
                     });
                     setCustomAmountStr("");
                     setActivePreset(50000);

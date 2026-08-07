@@ -39,6 +39,8 @@ export async function POST(request: Request) {
       signature_key,
       transaction_status,
       transaction_id,
+      payment_type,
+      fraud_status,
     } = payload;
 
     // Step 1: Payload sanity checks
@@ -78,17 +80,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "UNPROCESSABLE_ENTITY", message: "Gross amount mismatch." }, { status: 422 });
     }
 
-    // Step 5: Handle Idempotency (paid is terminal)
+    // Step 5: Validate QRIS payment method
+    if (payment_type && payment_type !== "qris") {
+      console.warn(`[${order_id}] WEBHOOK_PAYMENT_TYPE_MISMATCH: Expected qris, received: ${payment_type}`);
+      return NextResponse.json({ error: "UNPROCESSABLE_ENTITY", message: "Invalid payment type method." }, { status: 422 });
+    }
+
+    // Step 6: Handle Idempotency (paid is terminal)
     if (donation.status === "paid") {
       console.log(`[${order_id}] WEBHOOK_DUPLICATE: Payment already processed.`);
       return NextResponse.json({ message: "Notification handled (idempotent)." }, { status: 200 });
     }
 
-    // Step 6: Map Midtrans status to internal application state
+    // Step 7: Map Midtrans status to internal application state
     let targetStatus: DonationStatus = "pending";
     let paidAt: string | null = null;
 
-    if (transaction_status === "settlement" || transaction_status === "capture") {
+    if (transaction_status === "settlement" || (transaction_status === "capture" && fraud_status === "accept")) {
       targetStatus = "paid";
       paidAt = payload.settlement_time || new Date().toISOString();
     } else if (transaction_status === "expire") {
