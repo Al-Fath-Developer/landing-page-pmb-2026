@@ -10,7 +10,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, Sparkles } from "lucide-react";
+import { ArrowLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, Download, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DonationStats from "@/components/DonationStats";
@@ -166,6 +166,25 @@ export default function DonationPage() {
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
+  const handleDownloadQris = async () => {
+    if (!paymentSession) return;
+    try {
+      const response = await fetch(paymentSession.qrisUrl);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `qris-pmb-ifest-2026-${paymentSession.orderId}.png`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("QRIS download failed:", err);
+      window.open(paymentSession.qrisUrl, "_blank");
+    }
+  };
+
   const handleCustomAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value.replace(/[^0-9]/g, "");
     setCustomAmountStr(val);
@@ -187,6 +206,14 @@ export default function DonationPage() {
     
     if (type === "checkbox") {
       const checked = (e.target as HTMLInputElement).checked;
+      if (name === "isAnonymous") {
+        setFormInput((prev) => ({
+          ...prev,
+          isAnonymous: checked,
+          donorName: checked ? "Hamba Allah" : "",
+        }));
+        return;
+      }
       setFormInput((prev) => ({ ...prev, [name]: checked }));
     } else {
       setFormInput((prev) => ({ ...prev, [name]: value }));
@@ -492,7 +519,7 @@ export default function DonationPage() {
                 {/* QR Code Graphic Column */}
                 <div className="lg:col-span-5 flex flex-col items-center text-center">
                   <div className="border-[3px] border-black bg-white p-4 shadow-shadow">
-                    <div className="relative size-48 bg-zinc-100 border-[2px] border-black flex items-center justify-center">
+                    <div className="relative size-64 bg-zinc-100 border-[2px] border-black flex items-center justify-center">
                       {/* Actual Midtrans QRIS Image render */}
                       <img
                         src={paymentSession.qrisUrl}
@@ -501,7 +528,7 @@ export default function DonationPage() {
                         draggable={false}
                       />
                       
-                      <div className="absolute inset-0 m-auto flex size-10 items-center justify-center border-[2px] border-black bg-accent-blue font-heading text-[10px] text-white select-none">
+                      <div className="absolute inset-0 m-auto flex size-12 items-center justify-center border-[2px] border-black bg-accent-blue font-heading text-xs text-white select-none">
                         QRIS
                       </div>
                     </div>
@@ -512,6 +539,14 @@ export default function DonationPage() {
                   <p className="mt-4 font-mono text-[9px] uppercase text-zinc-500 dark:text-zinc-400">
                     Pindai menggunakan aplikasi m-banking atau e-wallet (GoPay, OVO, ShopeePay, DANA, dll).
                   </p>
+                  <button
+                    type="button"
+                    onClick={handleDownloadQris}
+                    className="mt-4 inline-flex items-center gap-2 border-[3px] border-black bg-accent-orange py-3 px-6 font-heading text-xs uppercase tracking-wider text-white shadow-shadow hover:bg-accent-orange/95 hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] cursor-pointer"
+                  >
+                    <Download className="size-4" />
+                    Download QRIS
+                  </button>
                 </div>
 
                 {/* Details Column */}
