@@ -410,7 +410,7 @@ export default function DonationPage() {
       <Navbar />
 
       {/* Main Container */}
-      <main className="mx-auto max-w-4xl py-12 px-6 sm:px-8">
+      <main className="mx-auto max-w-4xl py-12 px-6 sm:px-8 relative">
         {/* Back Link */}
         <div className="mb-6">
           <Link
@@ -420,6 +420,10 @@ export default function DonationPage() {
             <ArrowLeft className="size-4" /> Kembali ke Beranda
           </Link>
         </div>
+
+        {/* Retro dots overlay */}
+        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_#000_10%,_transparent_10%)] bg-[size:16px_16px] pointer-events-none" />
+        
 
         {/* Header Image */}
         <div className="relative w-full h-[180px] sm:h-[240px] md:h-[300px] border-[4px] border-black shadow-shadow-large mb-6 overflow-hidden bg-zinc-200">

@@ -140,7 +140,7 @@ export default function DonorCarousel({ donors, isLoading = false }: DonorCarous
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          className="overflow-hidden"
+          className="overflow-visible"
         >
           <div className="grid gap-4 sm:grid-cols-2">
             {slides[currentSlide]?.map((donor) => (
