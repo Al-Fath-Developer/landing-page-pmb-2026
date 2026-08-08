@@ -30,6 +30,9 @@ export const metadata: Metadata = {
     template: "%s | PMB I-FEST 2026",
   },
   description: "Dukung dan kenali perjalanan PMB I-FEST 2026.",
+  icons: {
+    icon: "/ARJUNA.webp",
+  },
   alternates: {
     canonical: "/",
   },
