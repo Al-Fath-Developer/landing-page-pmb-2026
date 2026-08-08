@@ -93,12 +93,12 @@ export const eventData: EventData = {
   mascots: {
     arjuna: {
       name: "Arjuna",
-      imagePath: "/ARJUNA.png",
+      imagePath: "/ARJUNA.webp",
       philosophy: "Merepresentasikan ketangguhan dalam belajar, sikap ramah dalam berinteraksi, keterbukaan menghadapi hal baru, dan keberanian melangkah menghadapi tantangan."
     },
     srikandi: {
       name: "Srikandi",
-      imagePath: "/SRIKANDI.png",
+      imagePath: "/SRIKANDI.webp",
       philosophy: "Merepresentasikan ketulusan, rasa empati yang mendalam, sifat meneduhkan, serta menghadirkan rasa aman dan kenyamanan dalam perjalanan bersama."
     }
   },

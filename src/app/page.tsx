@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, Send, Heart } from "lucide-react";
+import { ArrowRight, Send, Heart, Palette, Gamepad2, Code2, Trophy } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Marquee from "@/components/Marquee";
@@ -100,7 +100,7 @@ export default async function Home() {
           {/* Giant Display Headline */}
           <h1 className="font-heading text-4xl sm:text-7xl lg:text-8xl leading-[0.95] tracking-tighter uppercase text-black dark:text-white mt-2 select-none">
             PMB I-FEST 2026<br />
-            <span className="bg-accent-orange text-white px-4 py-1 border-[4px] border-black inline-block transform rotate-[-1deg] shadow-shadow-large mt-3" style={{ fontSize: "4.5rem" }}>
+            <span className="bg-accent-orange text-white px-4 py-1 border-[4px] border-black inline-block transform rotate-[-1deg] shadow-shadow-large mt-3" style={{ fontSize: "clamp(2.5rem, 1rem + 5vw, 4.5rem)"}}>
               Tumbuh Bersama, Mengukir Karya
             </span>
           </h1>
@@ -124,7 +124,7 @@ export default async function Home() {
         {/* Arjuna: Bottom Left Overlay */}
         <div className="absolute bottom-[-20px] left-[1%] lg:left-[4%] z-[99] w-24 sm:w-44 md:w-56 h-auto filter drop-shadow-[5px_5px_0px_rgba(0,0,0,0.8)] pointer-events-none select-none">
           <Image
-            src="/ARJUNA.png"
+            src="/ARJUNA.webp"
             alt="Arjuna Mascot"
             width={240}
             height={320}
@@ -138,7 +138,7 @@ export default async function Home() {
         {/* Srikandi: Bottom Right Overlay */}
         <div className="absolute bottom-[-20px] right-[1%] lg:right-[4%] z-[99] w-24 sm:w-44 md:w-56 h-auto filter drop-shadow-[5px_5px_0px_rgba(0,0,0,0.8)] pointer-events-none select-none">
           <Image
-            src="/SRIKANDI.png"
+            src="/SRIKANDI.webp"
             alt="Srikandi Mascot"
             width={240}
             height={320}
@@ -345,6 +345,15 @@ export default async function Home() {
             </div>
           </div>
 
+          {/* Gallery CTA */}
+          <div className="mt-16 text-center">
+            <Link href="/gallery" className="inline-block">
+              <button className="flex items-center justify-center gap-2 border-[4px] border-black bg-[#ffea79] px-8 py-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-[#ffea79]/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer dark:text-black">
+                JELAJAHI GALLERY DOKUMENTASI →
+              </button>
+            </Link>
+          </div>
+
         </div>
       </section>
 
@@ -378,6 +387,114 @@ export default async function Home() {
               colorClass="bg-accent-pink"
               rotationClass="rotate-[1.5deg]"
             />
+          </div>
+        </div>
+      </section>
+
+      {/* Community / Komunitas Section */}
+      <section className="border-t-[4px] border-black bg-accent-green py-24 px-6 sm:px-8 md:px-12 dark:bg-[#062c14] dark:text-white relative overflow-hidden">
+        {/* Retro dots overlay */}
+        <div className="absolute inset-0 opacity-5 bg-[radial-gradient(circle,_#000_10%,_transparent_10%)] bg-[size:16px_16px] pointer-events-none" />
+        
+        {/* Overlapping Mascots in Community Section */}
+        {/* Arjuna: Bottom Left */}
+        <div className="absolute bottom-[-10px] left-[1%] lg:left-[2%] z-[5] w-16 sm:w-24 md:w-32 lg:w-40 h-auto filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.4)] pointer-events-none select-none hidden sm:block">
+          <Image
+            src="/ARJUNA.webp"
+            alt=""
+            width={160}
+            height={213}
+            sizes="(max-width: 768px) 64px, (max-width: 1024px) 128px, 160px"
+            className="object-contain"
+            draggable={false}
+          />
+        </div>
+
+        {/* Srikandi: Bottom Right */}
+        <div className="absolute bottom-[-10px] right-[1%] lg:right-[2%] z-[5] w-16 sm:w-24 md:w-32 lg:w-40 h-auto filter drop-shadow-[4px_4px_0px_rgba(0,0,0,0.4)] pointer-events-none select-none hidden sm:block">
+          <Image
+            src="/SRIKANDI.webp"
+            alt=""
+            width={160}
+            height={213}
+            sizes="(max-width: 768px) 64px, (max-width: 1024px) 128px, 160px"
+            className="object-contain"
+            draggable={false}
+          />
+        </div>
+
+        <div className="mx-auto max-w-4xl text-center flex flex-col items-center relative z-10">
+          <div className="mb-4 inline-flex items-center gap-2 border-[2.5px] border-black bg-white px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-black shadow-shadow dark:bg-[#222] dark:text-white">
+            <svg className="size-4 text-emerald-600 fill-current dark:text-emerald-400" viewBox="0 0 24 24">
+              <path d="M17.472 14.382c-.022-.01-.15-.075-.177-.085-.027-.01-.045-.015-.064.015-.019.03-.075.094-.093.115-.017.02-.036.02-.064.01-.027-.01-.115-.043-.22-.136-.081-.072-.136-.162-.152-.19-.017-.03-.002-.045.013-.06.014-.014.03-.035.045-.053.015-.018.02-.03.03-.05.01-.02.005-.038-.002-.053-.007-.015-.064-.153-.087-.21-.023-.056-.048-.048-.065-.049-.017-.001-.037-.001-.057-.001-.02 0-.053.007-.08.038-.028.03-.107.105-.107.255s.11.294.125.314c.015.02.217.33.527.465.074.032.132.05.177.065.075.024.14.02.193.012.058-.008.177-.072.202-.142.025-.07.025-.13.017-.142-.008-.012-.03-.02-.058-.032m-5.466 7.39c-1.393 0-2.756-.372-3.957-1.077l-.284-.168-2.943.771.785-2.87-.184-.294c-.774-1.23-1.185-2.656-1.185-4.124 0-4.321 3.518-7.839 7.84-7.839 4.321 0 7.838 3.518 7.838 7.84 0 4.322-3.517 7.839-7.838 7.839m0-16.79c-4.95 0-8.98 4.03-8.98 8.98 0 1.579.41 3.12 1.192 4.482l-1.266 4.628 4.735-1.242c1.312.716 2.784 1.094 4.318 1.094 4.95 0 8.98-4.03 8.98-8.98s-4.03-8.98-8.98-8.98" />
+            </svg>
+            KOMUNITAS WA
+          </div>
+          
+          <h2 className="font-heading text-2xl sm:text-4xl tracking-tighter uppercase leading-tight max-w-2xl text-black dark:text-white">
+            GROUP KOMUNITAS MAHASISWA MUSLIM TEL-U
+          </h2>
+          
+          <p className="mt-4 text-xs sm:text-sm font-sans leading-relaxed text-zinc-800 dark:text-zinc-200 max-w-2xl">
+            Tumbuh bersama. Mengukir karya. Menjadi bagian dari cerita. Temukan teman sefrekuensi, salurkan minatmu, dan berkembang bersama dalam lingkungan dakwah yang inklusif di Telkom University.
+          </p>
+
+          {/* Bento Grid */}
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4 w-full max-w-4xl mt-10">
+            {/* Art */}
+            <div className="border-[3px] border-black bg-white p-4 shadow-shadow text-center flex flex-col items-center gap-3 dark:bg-[#1a1a1a]">
+              <div className="border-[2px] border-black bg-accent-pink p-2.5 shadow-shadow text-white">
+                <Palette className="size-6 text-black dark:text-white" />
+              </div>
+              <span className="font-heading text-xs uppercase tracking-wider text-black dark:text-white">Art</span>
+            </div>
+
+            {/* Gaming */}
+            <div className="border-[3px] border-black bg-white p-4 shadow-shadow text-center flex flex-col items-center gap-3 dark:bg-[#1a1a1a]">
+              <div className="border-[2px] border-black bg-accent-blue p-2.5 shadow-shadow text-white">
+                <Gamepad2 className="size-6 text-black dark:text-white" />
+              </div>
+              <span className="font-heading text-xs uppercase tracking-wider text-black dark:text-white">Gaming</span>
+            </div>
+
+            {/* Programming */}
+            <div className="border-[3px] border-black bg-white p-4 shadow-shadow text-center flex flex-col items-center gap-3 dark:bg-[#1a1a1a]">
+              <div className="border-[2px] border-black bg-[#ffea79] p-2.5 shadow-shadow text-black">
+                <Code2 className="size-6 text-black" />
+              </div>
+              <span className="font-heading text-xs uppercase tracking-wider text-black dark:text-white">Programming</span>
+            </div>
+
+            {/* Sport */}
+            <div className="border-[3px] border-black bg-white p-4 shadow-shadow text-center flex flex-col items-center gap-3 dark:bg-[#1a1a1a]">
+              <div className="border-[2px] border-black bg-accent-orange p-2.5 shadow-shadow text-white">
+                <Trophy className="size-6 text-black dark:text-white" />
+              </div>
+              <span className="font-heading text-xs uppercase tracking-wider text-black dark:text-white">Sport</span>
+            </div>
+          </div>
+
+          <div className="mt-12 flex flex-col gap-4 sm:flex-row justify-center w-full sm:w-auto z-20">
+            <a
+              href="https://chat.whatsapp.com/FkPRb3HTu6QA8uKIeEmAf8?s=sw&p=a&mlu=4"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto"
+            >
+              <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-[#ffea79] px-8 py-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-[#ffea79]/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer">
+                GABUNG KOMUNITAS SEKARANG →
+              </button>
+            </a>
+            <a
+              href="https://www.instagram.com/pmbifest_telyu/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto"
+            >
+              <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-accent-pink px-8 py-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-zinc-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2c2c2c]">
+                FOLLOW INSTAGRAM PMB I-FEST →
+              </button>
+            </a>
           </div>
         </div>
       </section>
@@ -428,21 +545,29 @@ export default async function Home() {
           </div>
           
           <h2 className="font-heading text-2xl sm:text-4xl tracking-tighter uppercase leading-[1.1]">
-            Tumbuh bersama.<br />
-            Mengukir karya.<br />
-            Menjadi bagian dari cerita.
+            DUKUNG PERJALANAN PMB I-FEST
           </h2>
           
           <p className="max-w-lg text-xs sm:text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Kontribusikan sebagian rezeki Anda untuk mendanai fasilitas, sarana prasarana, serta kelancaran operasional PMB I-FEST 2026.
+            Dukung langkah awal mahasiswa baru muslim PMB I-FEST 2026. Anda dapat berpartisipasi melalui donasi sukarela atau menghubungi panitia untuk kerja sama sponsorship dan kemitraan.
           </p>
 
           <div className="mt-4 flex flex-col gap-4 sm:flex-row justify-center w-full sm:w-auto">
             <Link href="/donation" className="w-full sm:w-auto">
               <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-accent-orange px-8 py-4 font-heading text-xs uppercase tracking-wider text-white shadow-shadow hover:bg-accent-orange/95 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer">
-                DONASI SEKARANG →
+                DONASI →
               </button>
             </Link>
+            <a
+              href="https://wa.me/6281313853065"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full sm:w-auto"
+            >
+              <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-white px-8 py-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-zinc-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2c2c2c]">
+                HUBUNGI CP (SPONSORSHIP) →
+              </button>
+            </a>
           </div>
         </div>
       </section>

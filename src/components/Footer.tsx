@@ -50,6 +50,15 @@ export default function Footer() {
                 className="object-contain dark:invert"
               />
             </div>
+            <div className="relative h-8 w-8">
+              <Image
+                src="/DKMSU.png"
+                alt="DKMSU Logo"
+                fill
+                sizes="32px"
+                className="object-contain"
+              />
+            </div>
           </div>
 
           <p className="font-mono text-[9px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
@@ -90,6 +99,12 @@ export default function Footer() {
             >
               Halaman Donasi
             </Link>
+            <Link
+              href="/gallery"
+              className="font-mono text-[10px] uppercase tracking-wide text-zinc-600 hover:text-black hover:underline dark:text-zinc-400 dark:hover:text-white"
+            >
+              Gallery
+            </Link>
           </nav>
         </div>
 
@@ -109,17 +124,17 @@ export default function Footer() {
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
               </svg>
-              <span className="font-mono text-[10px]">@ldksyamsululum</span>
+              <span className="font-mono text-[10px]">@pmbifest_telyu</span>
             </div>
           </div>
 
           <div className="flex gap-3 pt-2">
             <a
-              href="https://instagram.com/ldksyamsululum"
+              href="https://www.instagram.com/pmbifest_telyu/"
               target="_blank"
               rel="noopener noreferrer"
               className="flex size-10 items-center justify-center border-[3px] border-black bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-accent-blue hover:text-white active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] dark:bg-[#222] dark:text-white dark:hover:text-black dark:hover:bg-accent-blue"
-              aria-label="Instagram LDK"
+              aria-label="Instagram PMB I-FEST"
             >
               <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />

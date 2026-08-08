@@ -35,6 +35,7 @@ export default function Navbar() {
 
   const navLinks = [
     { name: "Beranda", href: "/" },
+    { name: "Gallery", href: "/gallery" },
   ];
 
   return (

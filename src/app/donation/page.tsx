@@ -10,6 +10,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, Download, Sparkles } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -320,6 +321,18 @@ export default function DonationPage() {
           >
             <ArrowLeft className="size-4" /> Kembali ke Beranda
           </Link>
+        </div>
+
+        {/* Header Image */}
+        <div className="relative w-full h-[180px] sm:h-[240px] md:h-[300px] border-[4px] border-black shadow-shadow-large mb-6 overflow-hidden bg-zinc-200">
+          <Image
+            src="/header_donation.webp"
+            alt="Header Donasi PMB I-FEST 2026"
+            fill
+            priority
+            className="object-cover select-none"
+            draggable={false}
+          />
         </div>
 
         {/* Campaign Info Header */}
