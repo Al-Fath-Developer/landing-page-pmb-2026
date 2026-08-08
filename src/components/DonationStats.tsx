@@ -37,12 +37,21 @@ export default function DonationStats({
   const progressPercent = useMemo(() => {
     if (targetAmount <= 0) return 0;
     const pct = (totalDonated / targetAmount) * 100;
-    return Math.min(Math.round(pct), 100);
+    return Math.min(pct, 100);
   }, [totalDonated, targetAmount]);
 
   const rawProgressPercent = useMemo(() => {
-    if (targetAmount <= 0) return 0;
-    return Math.round((totalDonated / targetAmount) * 100);
+    if (targetAmount <= 0) return "0";
+    const pct = (totalDonated / targetAmount) * 100;
+    if (pct > 0 && pct < 1) {
+      return new Intl.NumberFormat("id-ID", {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 2,
+      }).format(pct);
+    }
+    return new Intl.NumberFormat("id-ID", {
+      maximumFractionDigits: 0,
+    }).format(Math.min(pct, 100));
   }, [totalDonated, targetAmount]);
 
   return (

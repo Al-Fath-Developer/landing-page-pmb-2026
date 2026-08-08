@@ -19,6 +19,8 @@ import LiveDonorBoard from "@/components/LiveDonorBoard";
 import { eventData } from "@/data/eventData";
 import { getCampaignStats } from "@/lib/donationStats";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   // Fetch dynamic database campaign stats on server-side render
   // (live donor board is fetched client-side via LiveDonorBoard)

@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     const donorCount = statsData.length;
     const target = 28000000;
     const progressPercentage = target > 0
-      ? Math.min(Math.round((totalCollected / target) * 100), 100)
+      ? Math.min(Number(((totalCollected / target) * 100).toFixed(2)), 100)
       : 0;
 
     // Step 2: Query public donations gratitude board list

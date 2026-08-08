@@ -42,7 +42,7 @@ export async function getCampaignStats(): Promise<PublicCampaignStats> {
     const totalCollected = typedStats.reduce((sum: number, row) => sum + row.amount, 0);
     const donorCount = typedStats.length;
     const progressPercentage = target > 0
-      ? Math.min(Math.round((totalCollected / target) * 100), 100)
+      ? Math.min(Number(((totalCollected / target) * 100).toFixed(2)), 100)
       : 0;
 
     return {
