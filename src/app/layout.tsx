@@ -42,9 +42,9 @@ export const metadata: Metadata = {
     url: "https://landing-page-pmb-2026.vercel.app",
     images: [
       {
-        url: "/og-image.webp",
-        width: 1200,
-        height: 630,
+        url: "/banner.png",
+        width: 920,
+        height: 353,
         alt: "PMB I-FEST 2026",
       },
     ],
@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "PMB I-FEST 2026",
     description: "Website resmi PMB I-FEST 2026 — Penyambutan Mahasiswa Baru Muslim Telkom University.",
-    images: ["/og-image.webp"],
+    images: ["/banner.png"],
   },
 };
 

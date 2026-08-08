@@ -19,9 +19,9 @@ export const metadata: Metadata = {
     description: "Dokumentasi perjalanan kegiatan PMB I-FEST 2026 dan berbagai kegiatan mahasiswa muslim Telkom University.",
     images: [
       {
-        url: "/og-image.webp",
-        width: 1200,
-        height: 630,
+        url: "/banner.png",
+        width: 920,
+        height: 353,
         alt: "PMB I-FEST 2026",
       },
     ],
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Gallery Dokumentasi | PMB I-FEST 2026",
     description: "Dokumentasi perjalanan kegiatan PMB I-FEST 2026 dan berbagai kegiatan mahasiswa muslim Telkom University.",
-    images: ["/og-image.webp"],
+    images: ["/banner.png"],
   },
 };
 

@@ -434,6 +434,17 @@ export default function DonationPage() {
           <div className="inline-flex items-center gap-1 border-[2.5px] border-black bg-[#ffea79] px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider text-black shadow-shadow">
             KAMPANYE SOSIAL & DAKWAH
           </div>
+          {/* Image */}
+        <div className="relative w-full h-[180px] sm:h-[240px] md:h-[300px] border-[4px] border-black shadow-shadow-large mb-6 overflow-hidden bg-zinc-200">
+          <Image
+            src="/banner.png"
+            alt="Header Donasi PMB I-FEST 2026"
+            fill
+            priority
+            className="object-cover select-none"
+            draggable={false}
+          />
+        </div>
           <h1 className="mt-4 font-heading text-2xl sm:text-4xl uppercase tracking-tight leading-none">
             DONASI PMB I-FEST 2026
           </h1>
