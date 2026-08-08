@@ -284,15 +284,6 @@ export default function DonationPage() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleDownloadStaticQris = () => {
-    const anchor = document.createElement("a");
-    anchor.href = "/qr.jpeg";
-    anchor.download = "qr-pmb-ifest-2026.jpeg";
-    document.body.appendChild(anchor);
-    anchor.click();
-    document.body.removeChild(anchor);
-  };
-
   const handleShareWebsite = async () => {
     const shareData = {
       title: "PMB I-FEST 2026",
@@ -678,14 +669,14 @@ export default function DonationPage() {
                       />
                     </div>
                     <div className="mt-3 w-full">
-                      <button
-                        type="button"
-                        onClick={handleDownloadStaticQris}
+                      <a
+                        href="/qr.jpeg"
+                        download="qr-pmb-ifest-2026.jpeg"
                         className="w-full inline-flex items-center justify-center gap-2 border-[3px] border-black bg-[#ffea79] py-2.5 px-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-[#ffea79]/90 active:translate-x-px active:translate-y-px cursor-pointer"
                       >
                         <Download className="size-4" />
                         DOWNLOAD QRIS
-                      </button>
+                      </a>
                     </div>
                   </div>
 

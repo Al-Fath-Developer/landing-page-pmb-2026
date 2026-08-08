@@ -14,6 +14,24 @@ import { galleryActivities } from "@/data/galleryData";
 export const metadata: Metadata = {
   title: "Gallery Dokumentasi",
   description: "Dokumentasi perjalanan kegiatan PMB I-FEST 2026 dan berbagai kegiatan mahasiswa muslim Telkom University.",
+  openGraph: {
+    title: "Gallery Dokumentasi | PMB I-FEST 2026",
+    description: "Dokumentasi perjalanan kegiatan PMB I-FEST 2026 dan berbagai kegiatan mahasiswa muslim Telkom University.",
+    images: [
+      {
+        url: "/og-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "PMB I-FEST 2026",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Gallery Dokumentasi | PMB I-FEST 2026",
+    description: "Dokumentasi perjalanan kegiatan PMB I-FEST 2026 dan berbagai kegiatan mahasiswa muslim Telkom University.",
+    images: ["/og-image.webp"],
+  },
 };
 
 export default function GalleryPage() {
