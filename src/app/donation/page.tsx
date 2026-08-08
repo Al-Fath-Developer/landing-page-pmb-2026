@@ -46,9 +46,9 @@ export default function DonationPage() {
   const [manualOrderId, setManualOrderId] = useState<string | null>(null);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
 
-  const bankName = process.env.NEXT_PUBLIC_BANK_NAME || "Bank Syariah Indonesia (BSI)";
-  const bankAccount = process.env.NEXT_PUBLIC_BANK_ACCOUNT || "7268530654";
-  const bankHolder = process.env.NEXT_PUBLIC_BANK_HOLDER || "Panitia PMB I-FEST 2026";
+  const bankName = process.env.NEXT_PUBLIC_BANK_NAME || "Bank Jago (PT Bank Artos Indonesia Tbk)";
+  const bankAccount = process.env.NEXT_PUBLIC_BANK_ACCOUNT || "107885714465";
+  const bankHolder = process.env.NEXT_PUBLIC_BANK_HOLDER || "Venanda Angelyca Sherly Melati";
 
   // Cleanup proof image preview URL to prevent leaks
   useEffect(() => {
@@ -481,54 +481,6 @@ export default function DonationPage() {
                     ISI FORMULIR DONASI
                   </h2>
 
-                  {/* Amount Selection */}
-                  <div className="space-y-3">
-                    <label className="block font-heading text-xs uppercase tracking-wide">
-                      Pilih Nominal Donasi <span className="text-red-500">*</span>
-                    </label>
-
-                    {/* Presets Row */}
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                      {presetAmounts.map((amount) => (
-                        <button
-                          key={amount}
-                          type="button"
-                          onClick={() => handlePresetSelect(amount)}
-                          className={`border-[3px] border-black py-2.5 px-3 font-mono text-xs font-bold shadow-shadow active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] cursor-pointer ${
-                            activePreset === amount
-                              ? "bg-accent-orange text-white"
-                              : "bg-white text-black hover:bg-zinc-100 dark:bg-[#2c2c2c] dark:text-white dark:hover:bg-zinc-800"
-                          }`}
-                        >
-                          {formatRupiah(amount).replace(",00", "")}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Custom Amount Field */}
-                    <div className="relative mt-5">
-                      <label className="block font-heading text-xs uppercase tracking-wide">
-                        Nominal Lainnya <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={customAmountStr}
-                        onChange={handleCustomAmountChange}
-                        onFocus={() => {
-                          setActivePreset(null);
-                          if (customAmountStr === "") {
-                            setFormInput((prev) => ({ ...prev, amount: 0 }));
-                          }
-                        }}
-                        placeholder="Masukkan jumlah donasi..."
-                        className="w-full border-[3px] border-black bg-white py-3 pl-3 pr-4 font-mono text-xs shadow-shadow transition-all duration-200 focus:outline-none focus:bg-zinc-50 focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:bg-[#2c2c2c] dark:text-white dark:focus:bg-zinc-800"
-                      />
-                    </div>
-                    {errors.amount && (
-                      <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.amount}</p>
-                    )}
-                  </div>
-
                   {/* Donor Profile Details */}
                   <div className="grid gap-6 sm:grid-cols-2">
                     {/* Donor Name */}
@@ -582,6 +534,32 @@ export default function DonationPage() {
                         <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorEmail}</p>
                       )}
                     </div>
+                  </div>
+
+{/* Amount Selection */}
+                  <div className="space-y-3">
+                    {/* Custom Amount Field */}
+                    <div className="relative mt-5">
+                      <label className="block font-heading text-xs uppercase tracking-wide">
+                        Masukkan Nominal <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={customAmountStr}
+                        onChange={handleCustomAmountChange}
+                        onFocus={() => {
+                          setActivePreset(null);
+                          if (customAmountStr === "") {
+                            setFormInput((prev) => ({ ...prev, amount: 0 }));
+                          }
+                        }}
+                        placeholder="Masukkan jumlah donasi..."
+                        className="w-full border-[3px] border-black bg-white py-3 pl-3 pr-4 font-mono text-xs shadow-shadow transition-all duration-200 focus:outline-none focus:bg-zinc-50 focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:bg-[#2c2c2c] dark:text-white dark:focus:bg-zinc-800"
+                      />
+                    </div>
+                    {errors.amount && (
+                      <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.amount}</p>
+                    )}
                   </div>
 
                   {/* Message / Doa */}
@@ -687,12 +665,12 @@ export default function DonationPage() {
                   
                   {/* QRIS Box */}
                   <div className="border-[3px] border-black bg-white p-4 shadow-shadow text-center flex flex-col items-center dark:bg-[#1a1a1a]">
-                    <div className="relative size-64 bg-zinc-100 border-[2px] border-black flex items-center justify-center dark:bg-[#2c2c2c]">
+                    <div className="relative size-64 bg-zinc-100flex items-center justify-center dark:bg-[#2c2c2c]">
                       <Image
-                        src="/qris-donation.webp"
+                        src="/qr.jpeg"
                         alt="PMB I-FEST 2026 QRIS"
                         fill
-                        sizes="256px"
+                        sizes="512px"
                         className="object-contain p-2 select-none"
                         draggable={false}
                       />
@@ -740,19 +718,6 @@ export default function DonationPage() {
                         <span className="font-bold text-black dark:text-white uppercase">{bankHolder}</span>
                       </div>
                     </div>
-                  </div>
-
-                  <div className="border-[3px] border-black bg-accent-blue/10 p-4 shadow-shadow dark:bg-[#2a2a2a] dark:text-white">
-                    <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
-                      PETUNJUK PEMBAYARAN:
-                    </p>
-                    <ol className="mt-2 list-decimal list-inside font-sans text-xs text-zinc-700 dark:text-zinc-300 space-y-1">
-                      <li>Pindai QRIS atau transfer ke rekening di atas.</li>
-                      <li>Masukkan nominal donasi yang sesuai.</li>
-                      <li>Simpan bukti transaksi pembayaran Anda.</li>
-                      <li>Unggah bukti transfer pada form di sebelah kiri.</li>
-                      <li>Klik &ldquo;KIRIM DONASI&rdquo; untuk menyelesaikan.</li>
-                    </ol>
                   </div>
                 </div>
               </div>
@@ -1164,6 +1129,22 @@ export default function DonationPage() {
           )}
 
         </div>
+
+        {/* Petunjuk Pembayaran Section (Separate Container below the form) */}
+        {donationMode === "manual" && donationState === "idle" && (
+          <div className="border-[4px] border-black bg-accent-blue/10 p-6 sm:p-8 shadow-shadow-large mt-8 dark:bg-[#1a2b3a] dark:text-white">
+            <h3 className="font-heading text-sm uppercase tracking-wider border-b border-black/10 dark:border-white/10 pb-2 mb-4">
+              PETUNJUK PEMBAYARAN:
+            </h3>
+            <ol className="list-decimal list-inside font-sans text-xs sm:text-sm text-zinc-800 dark:text-zinc-300 space-y-2">
+              <li>Pindai QRIS atau transfer ke rekening di atas.</li>
+              <li>Masukkan nominal donasi yang sesuai.</li>
+              <li>Simpan bukti transaksi pembayaran Anda.</li>
+              <li>Unggah bukti transfer pada form di sebelah kiri.</li>
+              <li>Klik &ldquo;KIRIM DONASI&rdquo; untuk menyelesaikan.</li>
+            </ol>
+          </div>
+        )}
 
         {/* Dynamic donor gratitude wall at the bottom of the donation page */}
         <div className="mt-16 pt-12 border-t-[3px] border-black/15 dark:border-white/10">
