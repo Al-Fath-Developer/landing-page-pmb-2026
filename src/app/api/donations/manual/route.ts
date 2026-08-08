@@ -96,9 +96,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Step 6: Insert manual donation record into Supabase PostgreSQL donations table
+    // Step 6: Insert manual donation record into Supabase PostgreSQL donations table.
+    // Manual donations are treated as paid immediately (no committee review), so we
+    // insert as pending then transition to paid. The existing trg_after_donation_paid
+    // AFTER UPDATE trigger (pending -> paid) creates the public_donations projection,
+    // exactly like the Midtrans webhook path. No trigger changes are required.
+    const paidAt = new Date().toISOString();
     const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
-    const { data: dbData, error: dbError } = await supabase
+    const { data: dbInsert, error: dbInsertError } = await supabase
       .from("donations")
       .insert({
         order_id: orderId,
@@ -108,7 +113,7 @@ export async function POST(request: Request) {
         message: message || null,
         show_public_name: !isAnonymous,
         show_public_message: true,
-        status: "submitted",
+        status: "pending",
         payment_method: "manual",
         proof_storage_path: filePath,
         expires_at: expiresAt,
@@ -116,9 +121,27 @@ export async function POST(request: Request) {
       .select()
       .single();
 
-    if (dbError || !dbData) {
-      console.error(`[${orderId}] DB_INSERT_FAILED:`, dbError);
+    if (dbInsertError || !dbInsert) {
+      console.error(`[${orderId}] DB_INSERT_FAILED:`, dbInsertError);
       // Storage Cleanup Strategy: remove orphaned file
+      await supabase.storage.from("donation-proofs").remove([filePath]);
+      return NextResponse.json(
+        { error: "INTERNAL_SERVER_ERROR", message: "Gagal menyimpan data donasi di server." },
+        { status: 500 }
+      );
+    }
+
+    // Transition pending -> paid so the existing trigger creates the public_donations row
+    const { error: dbUpdateError } = await supabase
+      .from("donations")
+      .update({ status: "paid", paid_at: paidAt })
+      .eq("order_id", orderId)
+      .eq("status", "pending");
+
+    if (dbUpdateError) {
+      console.error(`[${orderId}] DB_UPDATE_PAID_FAILED:`, dbUpdateError);
+      // Rollback the inserted row and remove the uploaded proof file
+      await supabase.from("donations").delete().eq("order_id", orderId);
       await supabase.storage.from("donation-proofs").remove([filePath]);
       return NextResponse.json(
         { error: "INTERNAL_SERVER_ERROR", message: "Gagal menyimpan data donasi di server." },

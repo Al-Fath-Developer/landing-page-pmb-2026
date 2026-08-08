@@ -14,7 +14,6 @@ import Footer from "@/components/Footer";
 import Marquee from "@/components/Marquee";
 import DonationStats from "@/components/DonationStats";
 import MascotCard from "@/components/MascotCard";
-import DonationNotification from "@/components/DonationNotification";
 import EventPhoto from "@/components/EventPhoto";
 import DonorLeaderboard from "@/components/DonorLeaderboard";
 import { eventData } from "@/data/eventData";
@@ -573,9 +572,6 @@ export default async function Home() {
           </div>
         </div>
       </section>
-
-      {/* Floating alert notifications stream */}
-      <DonationNotification />
 
       {/* Footer */}
       <Footer />

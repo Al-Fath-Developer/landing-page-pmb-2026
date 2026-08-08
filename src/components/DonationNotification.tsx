@@ -1,101 +1,161 @@
 /**
  * @file    src/components/DonationNotification.tsx
- * @brief   Render real-time floating Neo-Brutalist notifications of webhook-verified PAID donations
+ * @brief   Live Neo-Brutalist toast notification driven by Supabase Realtime INSERTs on public_donations
  * @author  ray
- * @created 2026-08-07
- * @todo    - Wire to Supabase Realtime channel for live production events
+ * @created 2026-08-08
+ * @todo    - none
  */
 
 "use client";
 
-import { useState, useEffect } from "react";
-import { Heart, Sparkles } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Heart, Sparkles, X } from "lucide-react";
+import { supabaseClient } from "@/lib/supabaseClient";
 
-interface PublicDonation {
+interface LiveDonation {
   id: string;
-  name: string;
+  displayName: string;
   amount: number;
-  message?: string;
+  message?: string | null;
 }
 
-const mockLiveDonations: PublicDonation[] = [
-  { id: "1", name: "Rizky A.", amount: 50000, message: "Semoga berkah untuk semua!" },
-  { id: "2", name: "Donatur Anonim", amount: 100000 },
-  { id: "3", name: "Siti Sarah", amount: 25000, message: "Terus semangat berkreasi!" },
-  { id: "4", name: "Donatur Anonim", amount: 150000, message: "Tumbuh Bersama, Mengukir Karya!" }
-];
+const AUTO_DISMISS_MS = 6000;
+const EXIT_ANIMATION_MS = 300;
+
+function formatRupiah(value: number) {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value);
+}
 
 export default function DonationNotification() {
-  const [activeDonation, setActiveDonation] = useState<PublicDonation | null>(null);
+  const [notification, setNotification] = useState<LiveDonation | null>(null);
+  const [isLeaving, setIsLeaving] = useState(false);
 
-  useEffect(() => {
-    // Show a mock donation alert every 12 seconds
-    const triggerNotification = (index: number) => {
-      setActiveDonation(mockLiveDonations[index]);
+  const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const leavingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastShownId = useRef<string | null>(null);
 
-      // Hide after 5 seconds
-      const hideTimeout = setTimeout(() => {
-        setActiveDonation(null);
-      }, 5000);
-
-      return hideTimeout;
-    };
-
-    let currentIndex = 0;
-    
-    // Initial delay before first trigger
-    const initialTimeout = setTimeout(() => {
-      const hide = triggerNotification(currentIndex);
-      
-      const interval = setInterval(() => {
-        currentIndex = (currentIndex + 1) % mockLiveDonations.length;
-        triggerNotification(currentIndex);
-      }, 15000);
-
-      return () => {
-        clearTimeout(hide);
-        clearInterval(interval);
-      };
-    }, 4000);
-
-    return () => clearTimeout(initialTimeout);
+  const clearTimers = useCallback(() => {
+    if (dismissTimer.current) {
+      clearTimeout(dismissTimer.current);
+      dismissTimer.current = null;
+    }
+    if (leavingTimer.current) {
+      clearTimeout(leavingTimer.current);
+      leavingTimer.current = null;
+    }
   }, []);
 
-  const formatRupiah = (value: number) => {
-    return new Intl.NumberFormat("id-ID", {
-      style: "currency",
-      currency: "IDR",
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
+  const hideNotification = useCallback(() => {
+    if (!notification) return;
+    setIsLeaving(true);
+    leavingTimer.current = setTimeout(() => {
+      setNotification(null);
+      setIsLeaving(false);
+    }, EXIT_ANIMATION_MS);
+  }, [notification]);
 
-  if (!activeDonation) return null;
+  const showNotification = useCallback(
+    (donation: LiveDonation) => {
+      // Deduplicate re-emitted INSERTs for the same donation id
+      if (donation.id === lastShownId.current) return;
+      lastShownId.current = donation.id;
+
+      clearTimers();
+      setIsLeaving(false);
+      setNotification(donation);
+      dismissTimer.current = setTimeout(hideNotification, AUTO_DISMISS_MS);
+    },
+    [clearTimers, hideNotification]
+  );
+
+  useEffect(() => {
+    const channel = supabaseClient
+      .channel("public-donations-live")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "public_donations" },
+        (payload) => {
+          const row = payload.new as {
+            id?: string;
+            display_name?: string;
+            amount?: number;
+            message?: string | null;
+          };
+
+          if (!row || typeof row.id !== "string") return;
+
+          const amount = Number(row.amount);
+          if (!Number.isFinite(amount) || amount <= 0) return;
+
+          showNotification({
+            id: row.id,
+            displayName: row.display_name || "Donatur Anonim",
+            amount,
+            message: row.message || null,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      clearTimers();
+      supabaseClient.removeChannel(channel);
+    };
+  }, [showNotification, clearTimers]);
+
+  if (!notification) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-[9999] max-w-sm w-[calc(100vw-32px)] border-[3px] border-black bg-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-bounce dark:bg-[#1e1e1e] dark:text-white">
+    <div
+      role="status"
+      aria-live="polite"
+      className={`fixed bottom-4 left-4 right-4 z-[9999] max-w-sm border-[3px] border-black bg-white p-4 shadow-shadow sm:bottom-6 sm:left-auto sm:right-6 dark:bg-[#1e1e1e] dark:text-white ${
+        isLeaving ? "animate-notif-out" : "animate-notif-in"
+      }`}
+    >
       <div className="flex items-start gap-3">
         <div className="flex size-10 shrink-0 items-center justify-center border-[2px] border-black bg-accent-orange text-white">
-          <Heart className="size-5 fill-current text-white animate-pulse" />
+          <Heart className="size-5 animate-pulse fill-current text-white" />
         </div>
-        <div className="flex-1 min-w-0">
+
+        <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-1">
-            <span className="font-heading text-xs uppercase tracking-tight truncate">
-              {activeDonation.name}
+            <span className="font-heading text-[10px] uppercase tracking-tight text-zinc-500">
+              Donasi Baru
             </span>
-            <span className="inline-flex items-center gap-0.5 border border-black bg-accent-blue px-1.5 py-0.2 font-mono text-[8px] font-bold text-white uppercase shrink-0">
-              <Sparkles className="size-2 text-yellow-300 fill-current" /> BARU
+            <span className="inline-flex shrink-0 items-center gap-0.5 border border-black bg-accent-blue px-1.5 py-0.5 font-mono text-[8px] font-bold uppercase text-white">
+              <Sparkles className="size-2 fill-current text-yellow-300" /> BARU
             </span>
           </div>
-          <p className="mt-1 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
-            Mendonasikan {formatRupiah(activeDonation.amount)}
+
+          <p className="mt-1 truncate font-heading text-sm uppercase tracking-tight">
+            {notification.displayName}
           </p>
-          {activeDonation.message && (
-            <p className="mt-1 font-mono text-[10px] leading-normal text-zinc-500 dark:text-zinc-400 italic">
-              &ldquo;{activeDonation.message}&rdquo;
+
+          <p className="mt-1 font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+            {formatRupiah(notification.amount)}
+          </p>
+
+          {notification.message && (
+            <p className="mt-1 line-clamp-2 font-mono text-[10px] italic leading-normal text-zinc-500 dark:text-zinc-400">
+              &ldquo;{notification.message}&rdquo;
             </p>
           )}
         </div>
+
+        <button
+          type="button"
+          aria-label="Tutup notifikasi"
+          onClick={hideNotification}
+          className="flex size-11 shrink-0 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white dark:bg-[#2e2e2e] dark:text-white"
+        >
+          <X className="size-4" />
+        </button>
       </div>
     </div>
   );

@@ -8,6 +8,7 @@
 
 import type { Metadata } from "next";
 import { Archivo_Black, Lexend_Mega } from "next/font/google";
+import DonationNotification from "@/components/DonationNotification";
 import "./globals.css";
 
 const archivoFont = Archivo_Black({
@@ -62,7 +63,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       className={`${archivoFont.variable} ${lexendFont.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">{children}</body>
+      <body className="min-h-full flex flex-col bg-background text-foreground">
+        {children}
+        <DonationNotification />
+      </body>
     </html>
   );
 }
