@@ -116,7 +116,7 @@ export default function Footer() {
           <div className="flex flex-col gap-2 text-sm text-zinc-600 dark:text-zinc-400">
             <div className="flex items-center gap-2">
               <Mail className="size-4 text-black dark:text-white" />
-              <span className="font-mono text-[10px]">ldk.syamsululum@telkomuniversity.ac.id</span>
+              <span className="font-mono text-[10px]">alfathfiftelu@gmail.com</span>
             </div>
             <div className="flex items-center gap-2">
               <svg className="size-4 text-black dark:text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -143,15 +143,14 @@ export default function Footer() {
               </svg>
             </a>
             <a
-              href="https://github.com"
+              href="Follow this link to join my WhatsApp group: https://chat.whatsapp.com/FkPRb3HTu6QA8uKIeEmAf8?s=sw&p=a&mlu=4"
               target="_blank"
               rel="noopener noreferrer"
               className="flex size-10 items-center justify-center border-[3px] border-black bg-white text-black shadow-[3px_3px_0px_0px_rgba(0,0,0,1)] hover:bg-accent-blue hover:text-white active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] dark:bg-[#222] dark:text-white dark:hover:text-black dark:hover:bg-accent-blue"
-              aria-label="GitHub Repository"
+              aria-label="WhatsApp PMB I-FEST"
             >
-              <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-                <path d="M9 18c-4.51 2-5-2-7-2" />
+              <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.472 14.382c-.022-.01-.15-.075-.177-.085-.027-.01-.045-.015-.064.015-.019.03-.075.094-.093.115-.017.02-.036.02-.064.01-.027-.01-.115-.043-.22-.136-.081-.072-.136-.162-.152-.19-.017-.03-.002-.045.013-.06.014-.014.03-.035.045-.053.015-.018.02-.03.03-.05.01-.02.005-.038-.002-.053-.007-.015-.064-.153-.087-.21-.023-.056-.048-.048-.065-.049-.017-.001-.037-.001-.057-.001-.02 0-.053.007-.08.038-.028.03-.107.105-.107.255s.11.294.125.314c.015.02.217.33.527.465.074.032.132.05.177.065.075.024.14.02.193.012.058-.008.177-.072.202-.142.025-.07.025-.13.017-.142-.008-.012-.03-.02-.058-.032m-5.466 7.39c-1.393 0-2.756-.372-3.957-1.077l-.284-.168-2.943.771.785-2.87-.184-.294c-.774-1.23-1.185-2.656-1.185-4.124 0-4.321 3.518-7.839 7.84-7.839 4.321 0 7.838 3.518 7.838 7.84 0 4.322-3.517 7.839-7.838 7.839m0-16.79c-4.95 0-8.98 4.03-8.98 8.98 0 1.579.41 3.12 1.192 4.482l-1.266 4.628 4.735-1.242c1.312.716 2.784 1.094 4.318 1.094 4.95 0 8.98-4.03 8.98-8.98s-4.03-8.98-8.98-8.98" />
               </svg>
             </a>
           </div>

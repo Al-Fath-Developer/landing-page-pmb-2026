@@ -109,7 +109,7 @@ export default async function Home() {
           <div className="mt-8 flex flex-col gap-4 sm:flex-row w-full justify-center">
             <Link href="/donation" className="w-full sm:w-auto">
               <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-accent-orange px-8 py-4 font-heading text-sm uppercase tracking-wider text-white shadow-shadow hover:bg-accent-orange/95 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer">
-                DONASI SEKARANG <Heart className="size-4 fill-current text-white animate-pulse" />
+                IKUT DONASI <Heart className="size-4 fill-current text-white animate-pulse" />
               </button>
             </Link>
             <a href="#about" className="w-full sm:w-auto">
@@ -474,7 +474,7 @@ export default async function Home() {
             </div>
           </div>
 
-          <div className="mt-12 flex flex-col gap-4 sm:flex-row justify-center w-full sm:w-auto z-20">
+          <div className="mt-12 flex flex-col sm:flex-row justify-center w-full sm:w-auto z-20">
             <a
               href="https://chat.whatsapp.com/FkPRb3HTu6QA8uKIeEmAf8?s=sw&p=a&mlu=4"
               target="_blank"
@@ -485,14 +485,16 @@ export default async function Home() {
                 GABUNG KOMUNITAS SEKARANG →
               </button>
             </a>
+          </div>
+          <div className="mt-5 flex flex-col sm:flex-row justify-center w-full sm:w-auto z-20">
             <a
-              href="https://www.instagram.com/pmbifest_telyu/"
+              href="https://chat.whatsapp.com/FkPRb3HTu6QA8uKIeEmAf8?s=sw&p=a&mlu=4"
               target="_blank"
               rel="noopener noreferrer"
               className="w-full sm:w-auto"
             >
-              <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-accent-pink px-8 py-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-zinc-50 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer dark:bg-[#1a1a1a] dark:text-white dark:hover:bg-[#2c2c2c]">
-                FOLLOW INSTAGRAM PMB I-FEST →
+              <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-white px-8 py-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-[#ffea79]/90 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer">
+                FOLLOW JUGA INSTAGRAM KITA YUK →
               </button>
             </a>
           </div>
@@ -555,7 +557,7 @@ export default async function Home() {
           <div className="mt-4 flex flex-col gap-4 sm:flex-row justify-center w-full sm:w-auto">
             <Link href="/donation" className="w-full sm:w-auto">
               <button className="w-full sm:w-auto flex items-center justify-center gap-2 border-[4px] border-black bg-accent-orange px-8 py-4 font-heading text-xs uppercase tracking-wider text-white shadow-shadow hover:bg-accent-orange/95 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)] cursor-pointer">
-                DONASI →
+                IKUT DONASI →
               </button>
             </Link>
             <a

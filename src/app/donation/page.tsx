@@ -39,6 +39,26 @@ interface DonorRecord {
 }
 
 export default function DonationPage() {
+  const donationMode = process.env.NEXT_PUBLIC_DONATION_MODE || "manual";
+
+  const [proofFile, setProofFile] = useState<File | null>(null);
+  const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [manualOrderId, setManualOrderId] = useState<string | null>(null);
+  const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+
+  const bankName = process.env.NEXT_PUBLIC_BANK_NAME || "Bank Syariah Indonesia (BSI)";
+  const bankAccount = process.env.NEXT_PUBLIC_BANK_ACCOUNT || "7268530654";
+  const bankHolder = process.env.NEXT_PUBLIC_BANK_HOLDER || "Panitia PMB I-FEST 2026";
+
+  // Cleanup proof image preview URL to prevent leaks
+  useEffect(() => {
+    return () => {
+      if (proofPreview) {
+        URL.revokeObjectURL(proofPreview);
+      }
+    };
+  }, [proofPreview]);
+
   // Campaign stats (synced from API)
   const [stats, setStats] = useState({
     totalDonated: 0,
@@ -245,8 +265,55 @@ export default function DonationPage() {
       newErrors.donorEmail = "Format email tidak valid";
     }
 
+    if (donationMode === "manual") {
+      if (!proofFile) {
+        newErrors.proof = "Bukti transfer wajib diunggah.";
+      } else {
+        if (proofFile.size > 5 * 1024 * 1024) {
+          newErrors.proof = "Ukuran berkas bukti transfer maksimal adalah 5MB.";
+        }
+        const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+        if (!allowedTypes.includes(proofFile.type)) {
+          newErrors.proof = "Format berkas harus berupa JPG, PNG, atau WebP.";
+        }
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleDownloadStaticQris = () => {
+    const anchor = document.createElement("a");
+    anchor.href = "/qris-donation.webp";
+    anchor.download = "qris-pmb-ifest-2026.webp";
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  };
+
+  const handleShareWebsite = async () => {
+    const shareData = {
+      title: "PMB I-FEST 2026",
+      text: "Dukung dan kenali perjalanan PMB I-FEST 2026.",
+      url: window.location.origin,
+    };
+
+    if (navigator.share && navigator.canShare && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        console.error("Share failed:", err);
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(window.location.origin);
+        setShareFeedback("LINK BERHASIL DISALIN");
+        setTimeout(() => setShareFeedback(null), 3000);
+      } catch (err) {
+        console.error("Clipboard copy failed:", err);
+      }
+    }
   };
 
   const handleDonationSubmit = async (e: React.FormEvent) => {
@@ -254,6 +321,41 @@ export default function DonationPage() {
     if (!validateForm()) return;
 
     setDonationState("submitting");
+
+    if (donationMode === "manual") {
+      try {
+        const formData = new FormData();
+        formData.append("donorName", formInput.donorName);
+        formData.append("donorEmail", formInput.donorEmail);
+        formData.append("amount", formInput.amount.toString());
+        formData.append("message", formInput.message);
+        formData.append("isAnonymous", formInput.isAnonymous ? "true" : "false");
+        if (proofFile) {
+          formData.append("proof", proofFile);
+        }
+
+        const response = await fetch("/api/donations/manual", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const errData = await response.json();
+          setErrors({ amount: errData.message || "Gagal mengirim data donasi manual." });
+          setDonationState("idle");
+          return;
+        }
+
+        const data = await response.json();
+        setManualOrderId(data.orderId);
+        setDonationState("success");
+      } catch (err) {
+        console.error("Manual donation submission failed:", err);
+        setErrors({ amount: "Terjadi kesalahan jaringan atau koneksi server." });
+        setDonationState("idle");
+      }
+      return;
+    }
 
     try {
       const response = await fetch("/api/donations", {
@@ -371,141 +473,426 @@ export default function DonationPage() {
           
           {/* IDLE state: Form fields input */}
           {donationState === "idle" && (
-            <form onSubmit={handleDonationSubmit} className="space-y-6">
-              <h2 className="border-b-[3px] border-black pb-2 font-heading text-lg uppercase tracking-tight dark:border-zinc-700">
-                ISI FORMULIR DONASI
-              </h2>
+            donationMode === "manual" ? (
+              <div className="grid gap-8 lg:grid-cols-12">
+                {/* Left Column: Form */}
+                <form onSubmit={handleDonationSubmit} className="lg:col-span-7 space-y-6">
+                  <h2 className="border-b-[3px] border-black pb-2 font-heading text-lg uppercase tracking-tight dark:border-zinc-700">
+                    ISI FORMULIR DONASI
+                  </h2>
 
-              {/* Amount Selection */}
-              <div className="space-y-3">
-                <label className="block font-heading text-xs uppercase tracking-wide">
-                  Pilih Nominal Donasi <span className="text-red-500">*</span>
-                </label>
-
-                {/* Presets Row */}
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-                  {presetAmounts.map((amount) => (
-                    <button
-                      key={amount}
-                      type="button"
-                      onClick={() => handlePresetSelect(amount)}
-                      className={`border-[3px] border-black py-2.5 px-3 font-mono text-xs font-bold shadow-shadow active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${
-                        activePreset === amount
-                          ? "bg-accent-orange text-white"
-                          : "bg-white text-black hover:bg-zinc-100 dark:bg-[#2c2c2c] dark:text-white dark:hover:bg-zinc-800"
-                      }`}
-                    >
-                      {formatRupiah(amount).replace(",00", "")}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Custom Amount Field */}
-                <div className="relative mt-5">
-                  <label className="block font-heading text-xs uppercase tracking-wide">
-                    Nominal Lainnya <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={customAmountStr}
-                    onChange={handleCustomAmountChange}
-                    onFocus={() => {
-                      setActivePreset(null);
-                      if (customAmountStr === "") {
-                        setFormInput((prev) => ({ ...prev, amount: 0 }));
-                      }
-                    }}
-                    placeholder="Masukkan jumlah donasi..."
-                    className="w-full border-[3px] border-black bg-white py-3 pl-3 pr-4 font-mono text-xs shadow-shadow transition-all duration-200 focus:outline-none focus:bg-zinc-50 focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:bg-[#2c2c2c] dark:text-white dark:focus:bg-zinc-800"
-                  />
-                </div>
-                {errors.amount && (
-                  <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.amount}</p>
-                )}
-              </div>
-
-              {/* Donor Profile Details */}
-              <div className="grid gap-6 sm:grid-cols-2">
-                {/* Donor Name */}
-                <div className="space-y-2">
-                  <label htmlFor="donorName" className="block font-heading text-xs uppercase tracking-wide">
-                    Nama Lengkap <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    id="donorName"
-                    name="donorName"
-                    value={formInput.donorName}
-                    onChange={handleInputChange}
-                    placeholder="Masukkan nama Anda..."
-                    className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
-                  />
-                  {errors.donorName && (
-                    <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorName}</p>
-                  )}
-                  {/* Anonymous Checkbox */}
-                  <div className="flex items-center gap-2 mt-2">
-                    <input
-                      type="checkbox"
-                      id="isAnonymous"
-                      name="isAnonymous"
-                      checked={formInput.isAnonymous}
-                      onChange={handleInputChange}
-                      className="size-4 border-[2px] border-black checked:bg-accent-orange cursor-pointer"
-                    />
-                    <label htmlFor="isAnonymous" className="font-heading text-[10px] sm:text-xs uppercase tracking-wide cursor-pointer select-none">
-                      Sembunyikan nama saya (Hamba Allah)
+                  {/* Amount Selection */}
+                  <div className="space-y-3">
+                    <label className="block font-heading text-xs uppercase tracking-wide">
+                      Pilih Nominal Donasi <span className="text-red-500">*</span>
                     </label>
+
+                    {/* Presets Row */}
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                      {presetAmounts.map((amount) => (
+                        <button
+                          key={amount}
+                          type="button"
+                          onClick={() => handlePresetSelect(amount)}
+                          className={`border-[3px] border-black py-2.5 px-3 font-mono text-xs font-bold shadow-shadow active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] cursor-pointer ${
+                            activePreset === amount
+                              ? "bg-accent-orange text-white"
+                              : "bg-white text-black hover:bg-zinc-100 dark:bg-[#2c2c2c] dark:text-white dark:hover:bg-zinc-800"
+                          }`}
+                        >
+                          {formatRupiah(amount).replace(",00", "")}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Custom Amount Field */}
+                    <div className="relative mt-5">
+                      <label className="block font-heading text-xs uppercase tracking-wide">
+                        Nominal Lainnya <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={customAmountStr}
+                        onChange={handleCustomAmountChange}
+                        onFocus={() => {
+                          setActivePreset(null);
+                          if (customAmountStr === "") {
+                            setFormInput((prev) => ({ ...prev, amount: 0 }));
+                          }
+                        }}
+                        placeholder="Masukkan jumlah donasi..."
+                        className="w-full border-[3px] border-black bg-white py-3 pl-3 pr-4 font-mono text-xs shadow-shadow transition-all duration-200 focus:outline-none focus:bg-zinc-50 focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:bg-[#2c2c2c] dark:text-white dark:focus:bg-zinc-800"
+                      />
+                    </div>
+                    {errors.amount && (
+                      <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.amount}</p>
+                    )}
+                  </div>
+
+                  {/* Donor Profile Details */}
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    {/* Donor Name */}
+                    <div className="space-y-2">
+                      <label htmlFor="donorName" className="block font-heading text-xs uppercase tracking-wide">
+                        Nama Lengkap <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="donorName"
+                        name="donorName"
+                        value={formInput.donorName}
+                        onChange={handleInputChange}
+                        placeholder="Masukkan nama Anda..."
+                        className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
+                      />
+                      {errors.donorName && (
+                        <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorName}</p>
+                      )}
+                      {/* Anonymous Checkbox */}
+                      <div className="flex items-center gap-2 mt-2">
+                        <input
+                          type="checkbox"
+                          id="isAnonymous"
+                          name="isAnonymous"
+                          checked={formInput.isAnonymous}
+                          onChange={handleInputChange}
+                          className="size-4 border-[2px] border-black checked:bg-accent-orange cursor-pointer"
+                        />
+                        <label htmlFor="isAnonymous" className="font-heading text-[10px] sm:text-xs uppercase tracking-wide cursor-pointer select-none">
+                          Sembunyikan nama saya (Hamba Allah)
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Donor Email */}
+                    <div className="space-y-2">
+                      <label htmlFor="donorEmail" className="block font-heading text-xs uppercase tracking-wide">
+                        Email <span className="text-zinc-500 font-mono text-[9px]">(OPSIONAL)</span>
+                      </label>
+                      <input
+                        type="email"
+                        id="donorEmail"
+                        name="donorEmail"
+                        value={formInput.donorEmail}
+                        onChange={handleInputChange}
+                        placeholder="nama@email.com..."
+                        className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
+                      />
+                      {errors.donorEmail && (
+                        <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorEmail}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Message / Doa */}
+                  <div className="space-y-2">
+                    <label htmlFor="message" className="block font-heading text-xs uppercase tracking-wide">
+                      Pesan / Doa <span className="text-zinc-500 font-mono text-[9px]">(OPSIONAL)</span>
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={3}
+                      value={formInput.message}
+                      onChange={handleInputChange}
+                      placeholder="Tuliskan doa atau pesan dukungan Anda..."
+                      maxLength={150}
+                      className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
+                    />
+                  </div>
+
+                  {/* Proof of Transfer File Upload */}
+                  <div className="space-y-2">
+                    <label className="block font-heading text-xs uppercase tracking-wide">
+                      Upload Bukti Transfer <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative border-[3px] border-black p-4 bg-zinc-50 dark:bg-[#2c2c2c] shadow-shadow flex flex-col items-center justify-center text-center">
+                      <input
+                        type="file"
+                        id="proof"
+                        name="proof"
+                        accept="image/jpeg,image/png,image/webp"
+                        onChange={(e) => {
+                          const selectedFile = e.target.files?.[0] || null;
+                          setProofFile(selectedFile);
+                          if (errors.proof) {
+                            setErrors((prev) => {
+                              const next = { ...prev };
+                              delete next.proof;
+                              return next;
+                            });
+                          }
+                          if (selectedFile) {
+                            const previewUrl = URL.createObjectURL(selectedFile);
+                            setProofPreview(previewUrl);
+                          } else {
+                            setProofPreview(null);
+                          }
+                        }}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                      />
+                      {proofPreview ? (
+                        <div className="space-y-2 relative z-20">
+                          <div className="relative size-32 border-[2px] border-black mx-auto overflow-hidden bg-white">
+                            <img
+                              src={proofPreview}
+                              alt="Preview Bukti Transfer"
+                              className="size-full object-contain"
+                            />
+                          </div>
+                          <p className="font-mono text-[9px] font-bold text-zinc-500 uppercase">
+                            {proofFile?.name} ({Math.round((proofFile?.size || 0) / 1024)} KB)
+                          </p>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setProofFile(null);
+                              setProofPreview(null);
+                            }}
+                            className="font-mono text-[9px] uppercase text-red-600 underline font-bold cursor-pointer"
+                          >
+                            Hapus File
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="space-y-1 py-4">
+                          <p className="font-heading text-xs uppercase">Pilih Berkas Bukti Transfer</p>
+                          <p className="font-mono text-[9px] text-zinc-500 uppercase">JPG, PNG, atau WebP (Maks 5MB)</p>
+                        </div>
+                      )}
+                    </div>
+                    {errors.proof && (
+                      <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.proof}</p>
+                    )}
+                  </div>
+
+                  {/* Submit Button */}
+                  <div className="pt-4 border-t-[3px] border-black dark:border-zinc-700">
+                    <Button
+                      type="submit"
+                      disabled={donationState !== "idle"}
+                      className="w-full border-[4px] border-black bg-accent-orange py-6 font-heading text-sm uppercase tracking-wider text-white shadow-shadow hover:bg-accent-orange/95 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)]"
+                    >
+                      {donationState !== "idle" ? "MENGIRIM..." : `KIRIM DONASI • ${formatRupiah(formInput.amount)}`}
+                    </Button>
+                  </div>
+                </form>
+
+                {/* Right Column: Instructions */}
+                <div className="lg:col-span-5 space-y-6 lg:border-l-[3px] lg:border-black lg:pl-8 dark:border-zinc-700">
+                  <h2 className="border-b-[3px] border-black pb-2 font-heading text-lg uppercase tracking-tight dark:border-zinc-700">
+                    INFORMASI PEMBAYARAN
+                  </h2>
+                  
+                  {/* QRIS Box */}
+                  <div className="border-[3px] border-black bg-white p-4 shadow-shadow text-center flex flex-col items-center dark:bg-[#1a1a1a]">
+                    <div className="relative size-64 bg-zinc-100 border-[2px] border-black flex items-center justify-center dark:bg-[#2c2c2c]">
+                      <Image
+                        src="/qris-donation.webp"
+                        alt="PMB I-FEST 2026 QRIS"
+                        fill
+                        sizes="256px"
+                        className="object-contain p-2 select-none"
+                        draggable={false}
+                      />
+                    </div>
+                    <div className="mt-3 w-full">
+                      <button
+                        type="button"
+                        onClick={handleDownloadStaticQris}
+                        className="w-full inline-flex items-center justify-center gap-2 border-[3px] border-black bg-[#ffea79] py-2.5 px-4 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-[#ffea79]/90 active:translate-x-px active:translate-y-px cursor-pointer"
+                      >
+                        <Download className="size-4" />
+                        DOWNLOAD QRIS
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Bank Transfer Box */}
+                  <div className="border-[3px] border-black bg-zinc-50 p-4 shadow-shadow dark:bg-[#252525] space-y-3">
+                    <h3 className="font-heading text-xs uppercase tracking-wider border-b border-black/10 dark:border-white/10 pb-1">
+                      TRANSFER BANK
+                    </h3>
+                    <div className="space-y-2 text-xs font-mono">
+                      <div>
+                        <span className="text-zinc-500 uppercase text-[9px] block">BANK</span>
+                        <span className="font-bold text-black dark:text-white uppercase">{bankName}</span>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500 uppercase text-[9px] block">NO. REKENING</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold text-black dark:text-white">{bankAccount}</span>
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await navigator.clipboard.writeText(bankAccount);
+                              alert("Nomor rekening berhasil disalin!");
+                            }}
+                            className="text-[9px] uppercase underline text-accent-orange font-bold cursor-pointer"
+                          >
+                            Salin
+                          </button>
+                        </div>
+                      </div>
+                      <div>
+                        <span className="text-zinc-500 uppercase text-[9px] block">ATAS NAMA</span>
+                        <span className="font-bold text-black dark:text-white uppercase">{bankHolder}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-[3px] border-black bg-accent-blue/10 p-4 shadow-shadow dark:bg-[#2a2a2a] dark:text-white">
+                    <p className="font-mono text-[9px] font-bold uppercase tracking-wider text-zinc-600 dark:text-zinc-400">
+                      PETUNJUK PEMBAYARAN:
+                    </p>
+                    <ol className="mt-2 list-decimal list-inside font-sans text-xs text-zinc-700 dark:text-zinc-300 space-y-1">
+                      <li>Pindai QRIS atau transfer ke rekening di atas.</li>
+                      <li>Masukkan nominal donasi yang sesuai.</li>
+                      <li>Simpan bukti transaksi pembayaran Anda.</li>
+                      <li>Unggah bukti transfer pada form di sebelah kiri.</li>
+                      <li>Klik &ldquo;KIRIM DONASI&rdquo; untuk menyelesaikan.</li>
+                    </ol>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <form onSubmit={handleDonationSubmit} className="space-y-6">
+                <h2 className="border-b-[3px] border-black pb-2 font-heading text-lg uppercase tracking-tight dark:border-zinc-700">
+                  ISI FORMULIR DONASI
+                </h2>
+
+                {/* Amount Selection */}
+                <div className="space-y-3">
+                  <label className="block font-heading text-xs uppercase tracking-wide">
+                    Pilih Nominal Donasi <span className="text-red-500">*</span>
+                  </label>
+
+                  {/* Presets Row */}
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+                    {presetAmounts.map((amount) => (
+                      <button
+                        key={amount}
+                        type="button"
+                        onClick={() => handlePresetSelect(amount)}
+                        className={`border-[3px] border-black py-2.5 px-3 font-mono text-xs font-bold shadow-shadow active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] ${
+                          activePreset === amount
+                            ? "bg-accent-orange text-white"
+                            : "bg-white text-black hover:bg-zinc-100 dark:bg-[#2c2c2c] dark:text-white dark:hover:bg-zinc-800"
+                        }`}
+                      >
+                        {formatRupiah(amount).replace(",00", "")}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Custom Amount Field */}
+                  <div className="relative mt-5">
+                    <label className="block font-heading text-xs uppercase tracking-wide">
+                      Nominal Lainnya <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={customAmountStr}
+                      onChange={handleCustomAmountChange}
+                      onFocus={() => {
+                        setActivePreset(null);
+                        if (customAmountStr === "") {
+                          setFormInput((prev) => ({ ...prev, amount: 0 }));
+                        }
+                      }}
+                      placeholder="Masukkan jumlah donasi..."
+                      className="w-full border-[3px] border-black bg-white py-3 pl-3 pr-4 font-mono text-xs shadow-shadow transition-all duration-200 focus:outline-none focus:bg-zinc-50 focus:-translate-x-0.5 focus:-translate-y-0.5 focus:shadow-[6px_6px_0_0_rgba(0,0,0,1)] dark:bg-[#2c2c2c] dark:text-white dark:focus:bg-zinc-800"
+                    />
+                  </div>
+                  {errors.amount && (
+                    <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.amount}</p>
+                  )}
+                </div>
+
+                {/* Donor Profile Details */}
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {/* Donor Name */}
+                  <div className="space-y-2">
+                    <label htmlFor="donorName" className="block font-heading text-xs uppercase tracking-wide">
+                      Nama Lengkap <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      id="donorName"
+                      name="donorName"
+                      value={formInput.donorName}
+                      onChange={handleInputChange}
+                      placeholder="Masukkan nama Anda..."
+                      className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
+                    />
+                    {errors.donorName && (
+                      <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorName}</p>
+                    )}
+                    {/* Anonymous Checkbox */}
+                    <div className="flex items-center gap-2 mt-2">
+                      <input
+                        type="checkbox"
+                        id="isAnonymous"
+                        name="isAnonymous"
+                        checked={formInput.isAnonymous}
+                        onChange={handleInputChange}
+                        className="size-4 border-[2px] border-black checked:bg-accent-orange cursor-pointer"
+                      />
+                      <label htmlFor="isAnonymous" className="font-heading text-[10px] sm:text-xs uppercase tracking-wide cursor-pointer select-none">
+                        Sembunyikan nama saya (Hamba Allah)
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Donor Email */}
+                  <div className="space-y-2">
+                    <label htmlFor="donorEmail" className="block font-heading text-xs uppercase tracking-wide">
+                      Email <span className="text-zinc-500 font-mono text-[9px]">(OPSIONAL)</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="donorEmail"
+                      name="donorEmail"
+                      value={formInput.donorEmail}
+                      onChange={handleInputChange}
+                      placeholder="nama@email.com..."
+                      className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
+                    />
+                    {errors.donorEmail && (
+                      <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorEmail}</p>
+                    )}
                   </div>
                 </div>
 
-                {/* Donor Email */}
+                {/* Message / Doa */}
                 <div className="space-y-2">
-                  <label htmlFor="donorEmail" className="block font-heading text-xs uppercase tracking-wide">
-                    Email <span className="text-zinc-500 font-mono text-[9px]">(OPSIONAL)</span>
+                  <label htmlFor="message" className="block font-heading text-xs uppercase tracking-wide">
+                    Pesan / Doa <span className="text-zinc-500 font-mono text-[9px]">(OPSIONAL)</span>
                   </label>
-                  <input
-                    type="email"
-                    id="donorEmail"
-                    name="donorEmail"
-                    value={formInput.donorEmail}
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={3}
+                    value={formInput.message}
                     onChange={handleInputChange}
-                    placeholder="nama@email.com..."
+                    placeholder="Tuliskan doa atau pesan dukungan Anda..."
+                    maxLength={150}
                     className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
                   />
-                  {errors.donorEmail && (
-                    <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorEmail}</p>
-                  )}
                 </div>
-              </div>
 
-              {/* Message / Doa */}
-              <div className="space-y-2">
-                <label htmlFor="message" className="block font-heading text-xs uppercase tracking-wide">
-                  Pesan / Doa <span className="text-zinc-500 font-mono text-[9px]">(OPSIONAL)</span>
-                </label>
-                <textarea
-                  id="message"
-                  name="message"
-                  rows={3}
-                  value={formInput.message}
-                  onChange={handleInputChange}
-                  placeholder="Tuliskan doa atau pesan dukungan Anda..."
-                  maxLength={150}
-                  className="w-full border-[3px] border-black bg-white p-3 font-mono text-xs shadow-shadow focus:outline-none dark:bg-[#2c2c2c] dark:text-white"
-                />
-              </div>
-
-              {/* Submit Button */}
-              <div className="pt-4 border-t-[3px] border-black dark:border-zinc-700">
-                <Button
-                  type="submit"
-                  className="w-full border-[4px] border-black bg-accent-orange py-6 font-heading text-sm uppercase tracking-wider text-white shadow-shadow hover:bg-accent-orange/95 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)]"
-                >
-                  DONASI SEKARANG • {formatRupiah(formInput.amount)}
-                </Button>
-              </div>
-            </form>
+                {/* Submit Button */}
+                <div className="pt-4 border-t-[3px] border-black dark:border-zinc-700">
+                  <Button
+                    type="submit"
+                    className="w-full border-[4px] border-black bg-accent-orange py-6 font-heading text-sm uppercase tracking-wider text-white shadow-shadow hover:bg-accent-orange/95 active:translate-x-[2px] active:translate-y-[2px] active:shadow-[0px_0px_0px_0px_rgba(0,0,0,0)]"
+                  >
+                    DONASI SEKARANG • {formatRupiah(formInput.amount)}
+                  </Button>
+                </div>
+              </form>
+            )
           )}
 
           {/* SUBMITTING state: Loading/Creating transaction */}
@@ -622,7 +1009,7 @@ export default function DonationPage() {
 
               <div className="space-y-2">
                 <h2 className="font-heading text-2xl uppercase tracking-tight">
-                  DONASI BERHASIL DITERIMA!
+                  {donationMode === "manual" ? "DONASI BERHASIL DIKIRIM!" : "DONASI BERHASIL DITERIMA!"}
                 </h2>
                 <div className="inline-flex items-center gap-1 border-[2px] border-black bg-accent-orange px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-wider text-white">
                   <Sparkles className="size-3 text-white" /> JAZAKUMULLAH KHAIRAN
@@ -636,6 +1023,12 @@ export default function DonationPage() {
                 </div>
                 
                 <div className="mt-4 pt-4 border-t-[2px] border-black/10 dark:border-white/10 text-left space-y-2 text-sm">
+                  {donationMode === "manual" && manualOrderId && (
+                    <div>
+                      <span className="font-mono text-xs font-bold uppercase tracking-wider opacity-60">ID Referensi:</span>{" "}
+                      <span className="font-mono text-xs font-bold text-black dark:text-white">{manualOrderId}</span>
+                    </div>
+                  )}
                   <div>
                     <span className="font-mono text-xs font-bold uppercase tracking-wider opacity-60">Nama:</span>{" "}
                     <span className="font-heading text-sm">{formInput.isAnonymous ? "Hamba Allah (Anonymous)" : formInput.donorName}</span>
@@ -658,7 +1051,9 @@ export default function DonationPage() {
               </div>
 
               <p className="max-w-md text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 font-sans">
-                Terima kasih atas kontribusi Anda. Dukungan berharga ini akan segera disalurkan penuh demi mensukseskan kegiatan dakwah penyambutan mahasiswa baru muslim.
+                {donationMode === "manual"
+                  ? "Data donasi dan bukti pembayaran Anda telah berhasil dikirim. Terima kasih atas kontribusi Anda."
+                  : "Terima kasih atas kontribusi Anda. Dukungan berharga ini akan segera disalurkan penuh demi mensukseskan kegiatan dakwah penyambutan mahasiswa baru muslim."}
               </p>
 
               <div className="flex flex-col gap-3 sm:flex-row w-full justify-center">
@@ -672,6 +1067,12 @@ export default function DonationPage() {
                       message: "",
                       isAnonymous: false,
                     });
+                    setProofFile(null);
+                    if (proofPreview) {
+                      URL.revokeObjectURL(proofPreview);
+                      setProofPreview(null);
+                    }
+                    setManualOrderId(null);
                     setCustomAmountStr("");
                     setActivePreset(50000);
                     setDonationState("idle");
@@ -679,6 +1080,13 @@ export default function DonationPage() {
                   className="border-[3px] border-black bg-accent-orange py-3 px-6 font-heading text-xs uppercase tracking-wider text-white shadow-shadow hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-px cursor-pointer"
                 >
                   KIRIM DONASI BARU
+                </button>
+                <button
+                  type="button"
+                  onClick={handleShareWebsite}
+                  className="border-[3px] border-black bg-accent-blue py-3 px-6 font-heading text-xs uppercase tracking-wider text-white shadow-shadow hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-px cursor-pointer"
+                >
+                  {shareFeedback || "BAGIKAN WEBSITE"}
                 </button>
                 <Link href="/" className="w-full sm:w-auto">
                   <button className="w-full border-[3px] border-black bg-white py-3 px-6 font-heading text-xs uppercase tracking-wider text-black shadow-shadow hover:bg-zinc-100 hover:shadow-[1px_1px_0px_0px_rgba(0,0,0,1)] active:translate-x-px dark:bg-[#222] dark:text-white dark:hover:bg-zinc-800 cursor-pointer">
