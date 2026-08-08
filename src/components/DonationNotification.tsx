@@ -39,25 +39,38 @@ export default function DonationNotification() {
   const leavingTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastShownId = useRef<string | null>(null);
 
-  const clearTimers = useCallback(() => {
+  const clearDismissTimeout = useCallback(() => {
     if (dismissTimer.current) {
       clearTimeout(dismissTimer.current);
       dismissTimer.current = null;
     }
+  }, []);
+
+  const clearLeavingTimer = useCallback(() => {
     if (leavingTimer.current) {
       clearTimeout(leavingTimer.current);
       leavingTimer.current = null;
     }
   }, []);
 
+  const clearTimers = useCallback(() => {
+    clearDismissTimeout();
+    clearLeavingTimer();
+  }, [clearDismissTimeout, clearLeavingTimer]);
+
+  // Stable across renders so the realtime subscription effect never re-runs
   const hideNotification = useCallback(() => {
-    if (!notification) return;
+    clearDismissTimeout();
     setIsLeaving(true);
     leavingTimer.current = setTimeout(() => {
       setNotification(null);
       setIsLeaving(false);
     }, EXIT_ANIMATION_MS);
-  }, [notification]);
+  }, [clearDismissTimeout]);
+
+  const scheduleAutoDismiss = useCallback(() => {
+    dismissTimer.current = setTimeout(hideNotification, AUTO_DISMISS_MS);
+  }, [hideNotification]);
 
   const showNotification = useCallback(
     (donation: LiveDonation) => {
@@ -65,13 +78,19 @@ export default function DonationNotification() {
       if (donation.id === lastShownId.current) return;
       lastShownId.current = donation.id;
 
+      // Only one active auto-dismiss timer: cancel any previous one first
       clearTimers();
       setIsLeaving(false);
       setNotification(donation);
-      dismissTimer.current = setTimeout(hideNotification, AUTO_DISMISS_MS);
+      scheduleAutoDismiss();
     },
-    [clearTimers, hideNotification]
+    [clearTimers, scheduleAutoDismiss]
   );
+
+  const handleManualDismiss = useCallback(() => {
+    clearDismissTimeout();
+    hideNotification();
+  }, [clearDismissTimeout, hideNotification]);
 
   useEffect(() => {
     const channel = supabaseClient
@@ -151,7 +170,7 @@ export default function DonationNotification() {
         <button
           type="button"
           aria-label="Tutup notifikasi"
-          onClick={hideNotification}
+          onClick={handleManualDismiss}
           className="flex size-11 shrink-0 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white dark:bg-[#2e2e2e] dark:text-white"
         >
           <X className="size-4" />
