@@ -24,35 +24,35 @@ const lexendFont = Lexend_Mega({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://landing-page-pmb-2026.vercel.app"),
+  metadataBase: new URL("https://pmbtelyu.vercel.app"),
   title: {
-    default: "PMB I-FEST 2026",
+    default: "PMB I-FEST 2026 — Telkom University",
     template: "%s | PMB I-FEST 2026",
   },
-  description: "Website resmi PMB I-FEST 2026 — Penyambutan Mahasiswa Baru Muslim Telkom University.",
+  description: "Dukung dan kenali perjalanan PMB I-FEST 2026.",
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "id_ID",
+    url: "/",
+    title: "PMB I-FEST 2026 — Telkom University",
+    description: "Dukung dan kenali perjalanan PMB I-FEST 2026.",
     siteName: "PMB I-FEST 2026",
-    title: "PMB I-FEST 2026",
-    description: "Website resmi PMB I-FEST 2026 — Penyambutan Mahasiswa Baru Muslim Telkom University.",
-    url: "https://landing-page-pmb-2026.vercel.app",
     images: [
       {
         url: "/banner.png",
         width: 920,
         height: 353,
-        alt: "PMB I-FEST 2026",
+        alt: "PMB I-FEST 2026 — Telkom University",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "PMB I-FEST 2026",
-    description: "Website resmi PMB I-FEST 2026 — Penyambutan Mahasiswa Baru Muslim Telkom University.",
+    title: "PMB I-FEST 2026 — Telkom University",
+    description: "Dukung dan kenali perjalanan PMB I-FEST 2026.",
     images: ["/banner.png"],
   },
 };
