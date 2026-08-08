@@ -113,7 +113,7 @@ export default function DonorCarousel({ donors, isLoading = false }: DonorCarous
 
       {/* Loading skeleton */}
       {isLoading && (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Memuat donatur">
+        <div className="grid gap-4 sm:grid-cols-2" aria-busy="true" aria-label="Memuat donatur">
           {Array.from({ length: DONORS_PER_SLIDE }).map((_, i) => (
             <div
               key={i}
@@ -142,7 +142,7 @@ export default function DonorCarousel({ donors, isLoading = false }: DonorCarous
           onTouchEnd={handleTouchEnd}
           className="overflow-hidden"
         >
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2">
             {slides[currentSlide]?.map((donor) => (
               <DonorCard key={donor.id} donor={donor} />
             ))}
