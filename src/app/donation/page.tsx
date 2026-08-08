@@ -501,20 +501,6 @@ export default function DonationPage() {
                       {errors.donorName && (
                         <p className="font-mono text-[10px] font-bold text-red-600 dark:text-red-400">{errors.donorName}</p>
                       )}
-                      {/* Anonymous Checkbox */}
-                      <div className="flex items-center gap-2 mt-2">
-                        <input
-                          type="checkbox"
-                          id="isAnonymous"
-                          name="isAnonymous"
-                          checked={formInput.isAnonymous}
-                          onChange={handleInputChange}
-                          className="size-4 border-[2px] border-black checked:bg-accent-orange cursor-pointer"
-                        />
-                        <label htmlFor="isAnonymous" className="font-heading text-[10px] sm:text-xs uppercase tracking-wide cursor-pointer select-none">
-                          Sembunyikan nama saya (Hamba Allah)
-                        </label>
-                      </div>
                     </div>
 
                     {/* Donor Email */}
@@ -536,6 +522,21 @@ export default function DonationPage() {
                       )}
                     </div>
                   </div>
+
+                  {/* Anonymous Checkbox */}
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="isAnonymous"
+                          name="isAnonymous"
+                          checked={formInput.isAnonymous}
+                          onChange={handleInputChange}
+                          className="size-4 border-[2px] border-black checked:bg-accent-orange cursor-pointer"
+                        />
+                        <label htmlFor="isAnonymous" className="font-heading text-[10px] sm:text-xs uppercase tracking-wide cursor-pointer select-none">
+                          Sembunyikan nama saya (Hamba Allah)
+                        </label>
+                      </div>
 
 {/* Amount Selection */}
                   <div className="space-y-3">
@@ -1133,7 +1134,7 @@ export default function DonationPage() {
 
         {/* Petunjuk Pembayaran Section (Separate Collapsible Container below the form) */}
         {donationMode === "manual" && donationState === "idle" && (
-          <div className="border-[4px] border-black bg-accent-blue/10 shadow-shadow-large mt-8 dark:bg-[#1a2b3a] dark:text-white overflow-hidden transition-all duration-300">
+          <div className="border-[4px] border-black bg-accent-blue/65 shadow-shadow-large mt-8 dark:bg-[#1a2b3a] dark:text-white overflow-hidden transition-all duration-300">
             {/* Header / Trigger */}
             <button
               type="button"
