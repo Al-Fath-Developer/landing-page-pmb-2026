@@ -1134,7 +1134,7 @@ export default function DonationPage() {
 
         {/* Petunjuk Pembayaran Section (Separate Collapsible Container below the form) */}
         {donationMode === "manual" && donationState === "idle" && (
-          <div className="border-[4px] border-black bg-accent-blue/65 shadow-shadow-large mt-8 dark:bg-[#1a2b3a] dark:text-white overflow-hidden transition-all duration-300">
+          <div className="border-[4px] border-black bg-white shadow-shadow-large mt-8 dark:bg-[#1a2b3a] dark:text-white overflow-hidden transition-all duration-300">
             {/* Header / Trigger */}
             <button
               type="button"
