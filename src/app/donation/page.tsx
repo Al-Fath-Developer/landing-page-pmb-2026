@@ -11,7 +11,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, Download, Sparkles } from "lucide-react";
+import { ArrowLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, Download, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DonationStats from "@/components/DonationStats";
@@ -45,6 +45,7 @@ export default function DonationPage() {
   const [proofPreview, setProofPreview] = useState<string | null>(null);
   const [manualOrderId, setManualOrderId] = useState<string | null>(null);
   const [shareFeedback, setShareFeedback] = useState<string | null>(null);
+  const [isInstructionsExpanded, setIsInstructionsExpanded] = useState(false);
 
   const bankName = process.env.NEXT_PUBLIC_BANK_NAME || "Bank Jago (PT Bank Artos Indonesia Tbk)";
   const bankAccount = process.env.NEXT_PUBLIC_BANK_ACCOUNT || "107885714465";
@@ -1130,19 +1131,39 @@ export default function DonationPage() {
 
         </div>
 
-        {/* Petunjuk Pembayaran Section (Separate Container below the form) */}
+        {/* Petunjuk Pembayaran Section (Separate Collapsible Container below the form) */}
         {donationMode === "manual" && donationState === "idle" && (
-          <div className="border-[4px] border-black bg-accent-blue/10 p-6 sm:p-8 shadow-shadow-large mt-8 dark:bg-[#1a2b3a] dark:text-white">
-            <h3 className="font-heading text-sm uppercase tracking-wider border-b border-black/10 dark:border-white/10 pb-2 mb-4">
-              PETUNJUK PEMBAYARAN:
-            </h3>
-            <ol className="list-decimal list-inside font-sans text-xs sm:text-sm text-zinc-800 dark:text-zinc-300 space-y-2">
-              <li>Pindai QRIS atau transfer ke rekening di atas.</li>
-              <li>Masukkan nominal donasi yang sesuai.</li>
-              <li>Simpan bukti transaksi pembayaran Anda.</li>
-              <li>Unggah bukti transfer pada form di sebelah kiri.</li>
-              <li>Klik &ldquo;KIRIM DONASI&rdquo; untuk menyelesaikan.</li>
-            </ol>
+          <div className="border-[4px] border-black bg-accent-blue/10 shadow-shadow-large mt-8 dark:bg-[#1a2b3a] dark:text-white overflow-hidden transition-all duration-300">
+            {/* Header / Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsInstructionsExpanded((prev) => !prev)}
+              className="w-full flex items-center justify-between p-6 font-heading text-sm uppercase tracking-wider cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors focus:outline-none"
+            >
+              <span>PETUNJUK PEMBAYARAN</span>
+              {isInstructionsExpanded ? (
+                <ChevronUp className="size-5 text-black dark:text-white stroke-[2.5]" />
+              ) : (
+                <ChevronDown className="size-5 text-black dark:text-white stroke-[2.5]" />
+              )}
+            </button>
+            
+            {/* Collapsible Content */}
+            <div
+              className={`transition-all duration-300 ease-in-out ${
+                isInstructionsExpanded
+                  ? "max-h-[500px] border-t-[3px] border-black dark:border-zinc-700 p-6 sm:p-8 opacity-100"
+                  : "max-h-0 opacity-0 pointer-events-none"
+              } overflow-hidden`}
+            >
+              <ol className="list-decimal list-inside font-sans text-xs sm:text-sm text-zinc-800 dark:text-zinc-300 space-y-2">
+                <li>Pindai QRIS atau transfer ke rekening di atas.</li>
+                <li>Masukkan nominal donasi yang sesuai.</li>
+                <li>Simpan bukti transaksi pembayaran Anda.</li>
+                <li>Unggah bukti transfer pada form di sebelah kiri.</li>
+                <li>Klik &ldquo;KIRIM DONASI&rdquo; untuk menyelesaikan.</li>
+              </ol>
+            </div>
           </div>
         )}
 
