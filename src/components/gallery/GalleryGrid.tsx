@@ -108,7 +108,7 @@ export default function GalleryGrid({ activities }: GalleryGridProps) {
                       loading="lazy"
                     />
                     {/* Category Label Overlay */}
-                    <span className="pointer-events-none absolute bottom-2 left-2 z-10 border-[2px] border-black bg-accent-blue px-2 py-0.5 font-heading text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] dark:bg-[#1a1a1a] dark:text-white">
+                    <span className="pointer-events-none text-white absolute bottom-2 left-2 z-10 border-[2px] border-black bg-accent-blue px-2 py-0.5 font-heading text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-black shadow-[2px_2px_0_0_rgba(0,0,0,1)] dark:bg-[#1a1a1a] dark:text-white">
                       {activity.title}
                     </span>
                   </div>
