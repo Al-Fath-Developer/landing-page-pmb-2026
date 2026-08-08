@@ -286,8 +286,8 @@ export default function DonationPage() {
 
   const handleDownloadStaticQris = () => {
     const anchor = document.createElement("a");
-    anchor.href = "/qris-donation.webp";
-    anchor.download = "qris-pmb-ifest-2026.webp";
+    anchor.href = "/qr.jpeg";
+    anchor.download = "qr-pmb-ifest-2026.jpeg";
     document.body.appendChild(anchor);
     anchor.click();
     document.body.removeChild(anchor);
@@ -667,7 +667,7 @@ export default function DonationPage() {
                   
                   {/* QRIS Box */}
                   <div className="border-[3px] border-black bg-white p-4 shadow-shadow text-center flex flex-col items-center dark:bg-[#1a1a1a]">
-                    <div className="relative size-64 bg-zinc-100flex items-center justify-center dark:bg-[#2c2c2c]">
+                    <div className="relative size-64 bg-zinc-100 flex items-center justify-center dark:bg-[#2c2c2c]">
                       <Image
                         src="/qr.jpeg"
                         alt="PMB I-FEST 2026 QRIS"

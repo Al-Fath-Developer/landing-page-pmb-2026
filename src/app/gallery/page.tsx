@@ -12,9 +12,8 @@ import GalleryGrid from "@/components/gallery/GalleryGrid";
 import { galleryActivities } from "@/data/galleryData";
 
 export const metadata: Metadata = {
-  title: "Gallery Dokumentasi - PMB I-FEST 2026",
-  description:
-    "Dokumentasi arsip foto kegiatan Penyambutan Mahasiswa Baru Islamic Festival Telkom University.",
+  title: "Gallery Dokumentasi",
+  description: "Dokumentasi perjalanan kegiatan PMB I-FEST 2026 dan berbagai kegiatan mahasiswa muslim Telkom University.",
 };
 
 export default function GalleryPage() {

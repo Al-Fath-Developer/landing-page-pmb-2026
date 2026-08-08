@@ -23,8 +23,37 @@ const lexendFont = Lexend_Mega({
 });
 
 export const metadata: Metadata = {
-  title: "PMB I-FEST 2026 - Telkom University",
-  description: "Penyambutan Mahasiswa Baru Islamic Festival 2026 Telkom University. Tumbuh Bersama, Mengukir Karya.",
+  metadataBase: new URL("https://landing-page-pmb-2026.vercel.app"),
+  title: {
+    default: "PMB I-FEST 2026",
+    template: "%s | PMB I-FEST 2026",
+  },
+  description: "Website resmi PMB I-FEST 2026 — Penyambutan Mahasiswa Baru Muslim Telkom University.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    siteName: "PMB I-FEST 2026",
+    title: "PMB I-FEST 2026",
+    description: "Website resmi PMB I-FEST 2026 — Penyambutan Mahasiswa Baru Muslim Telkom University.",
+    url: "https://landing-page-pmb-2026.vercel.app",
+    images: [
+      {
+        url: "/og-image.webp",
+        width: 1200,
+        height: 630,
+        alt: "PMB I-FEST 2026",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PMB I-FEST 2026",
+    description: "Website resmi PMB I-FEST 2026 — Penyambutan Mahasiswa Baru Muslim Telkom University.",
+    images: ["/og-image.webp"],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
