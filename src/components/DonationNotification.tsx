@@ -9,7 +9,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Heart, Sparkles, X } from "lucide-react";
+import { Heart, Sparkles } from "lucide-react";
 import { supabaseClient } from "@/lib/supabaseClient";
 
 interface LiveDonation {
@@ -19,7 +19,7 @@ interface LiveDonation {
   message?: string | null;
 }
 
-const AUTO_DISMISS_MS = 6000;
+const AUTO_DISMISS_MS = 3000;
 const EXIT_ANIMATION_MS = 300;
 
 function formatRupiah(value: number) {
@@ -87,11 +87,6 @@ export default function DonationNotification() {
     [clearTimers, scheduleAutoDismiss]
   );
 
-  const handleManualDismiss = useCallback(() => {
-    clearDismissTimeout();
-    hideNotification();
-  }, [clearDismissTimeout, hideNotification]);
-
   useEffect(() => {
     const channel = supabaseClient
       .channel("public-donations-live")
@@ -131,6 +126,7 @@ export default function DonationNotification() {
 
   return (
     <div
+      key={notification.id}
       role="status"
       aria-live="polite"
       className={`fixed bottom-4 left-4 right-4 z-[9999] max-w-sm border-[3px] border-black bg-white p-4 shadow-shadow sm:bottom-6 sm:left-auto sm:right-6 dark:bg-[#1e1e1e] dark:text-white ${
@@ -166,15 +162,6 @@ export default function DonationNotification() {
             </p>
           )}
         </div>
-
-        <button
-          type="button"
-          aria-label="Tutup notifikasi"
-          onClick={handleManualDismiss}
-          className="flex size-11 shrink-0 items-center justify-center border-2 border-black bg-white text-black transition-colors hover:bg-black hover:text-white dark:bg-[#2e2e2e] dark:text-white"
-        >
-          <X className="size-4" />
-        </button>
       </div>
     </div>
   );

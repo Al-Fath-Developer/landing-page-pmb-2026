@@ -128,14 +128,30 @@
   --color-card: var(--card);
 }
 
-@keyframes notif-slide-in {
-  from {
+@keyframes notif-pop-in {
+  0% {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(16px) rotate(0deg);
   }
-  to {
+  20% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) rotate(-3deg);
+  }
+  35% {
+    transform: translateY(0) rotate(3deg);
+  }
+  50% {
+    transform: translateY(0) rotate(-2deg);
+  }
+  65% {
+    transform: translateY(0) rotate(2deg);
+  }
+  80% {
+    transform: translateY(0) rotate(-1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) rotate(0deg);
   }
 }
 
@@ -151,7 +167,7 @@
 }
 
 .animate-notif-in {
-  animation: notif-slide-in 0.35s ease-out both;
+  animation: notif-pop-in 0.7s ease-in-out both;
 }
 
 .animate-notif-out {
