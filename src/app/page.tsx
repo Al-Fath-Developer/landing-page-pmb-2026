@@ -15,15 +15,14 @@ import Marquee from "@/components/Marquee";
 import DonationStats from "@/components/DonationStats";
 import MascotCard from "@/components/MascotCard";
 import EventPhoto from "@/components/EventPhoto";
-import DonorLeaderboard from "@/components/DonorLeaderboard";
+import LiveDonorBoard from "@/components/LiveDonorBoard";
 import { eventData } from "@/data/eventData";
 import { getCampaignStats } from "@/lib/donationStats";
-import { getPublicDonors } from "@/lib/publicDonors";
 
 export default async function Home() {
-  // Fetch dynamic database campaign stats and public donors on server-side render
+  // Fetch dynamic database campaign stats on server-side render
+  // (live donor board is fetched client-side via LiveDonorBoard)
   const stats = await getCampaignStats();
-  const donors = await getPublicDonors(6);
 
   const marqueeItems = [
     "PMB I-FEST 2026",
@@ -588,12 +587,10 @@ export default async function Home() {
             />
           </div>
 
-          {/* Donor Appreciation Board on Homepage */}
-          {donors.length > 0 && (
-            <div className="mt-16 pt-12 border-t-[3px] border-black/15 dark:border-white/10">
-              <DonorLeaderboard donors={donors} />
-            </div>
-          )}
+          {/* Live Donor Appreciation Board on Homepage (client-fetched, top 6) */}
+          <div className="mt-16 pt-12 border-t-[3px] border-black/15 dark:border-white/10">
+            <LiveDonorBoard />
+          </div>
         </div>
       </section>
 

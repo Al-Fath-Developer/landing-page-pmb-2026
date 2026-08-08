@@ -15,7 +15,7 @@ import { ArrowLeft, RefreshCw, CheckCircle, AlertTriangle, Clock, Download, Spar
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import DonationStats from "@/components/DonationStats";
-import DonorLeaderboard from "@/components/DonorLeaderboard";
+import DonorCarousel from "@/components/DonorCarousel";
 import { Button } from "@/components/ui/button";
 import { eventData } from "@/data/eventData";
 import { DonationResponse, DonationStatusResponse } from "@/types/donation";
@@ -71,6 +71,7 @@ export default function DonationPage() {
   const [customAmountStr, setCustomAmountStr] = useState("");
   const [activePreset, setActivePreset] = useState<number | null>(50000); // Default preset: 50k
   const [donors, setDonors] = useState<DonorRecord[]>([]);
+  const [donorsLoading, setDonorsLoading] = useState(true);
 
   // Form input states
   const [formInput, setFormInput] = useState<DonationFormInput>({
@@ -96,6 +97,7 @@ export default function DonationPage() {
 
   // Fetch initial campaign data (stats + public donors board) on mount
   const fetchPublicCampaignData = async () => {
+    setDonorsLoading(true);
     try {
       const response = await fetch("/api/donations/public");
       if (response.ok) {
@@ -113,6 +115,8 @@ export default function DonationPage() {
       }
     } catch (err) {
       console.error("Failed to fetch initial public campaign stats:", err);
+    } finally {
+      setDonorsLoading(false);
     }
   };
 
@@ -1172,7 +1176,7 @@ export default function DonationPage() {
 
         {/* Dynamic donor gratitude wall at the bottom of the donation page */}
         <div className="mt-16 pt-12 border-t-[3px] border-black/15 dark:border-white/10">
-          <DonorLeaderboard donors={donors} />
+          <DonorCarousel donors={donors} isLoading={donorsLoading} />
         </div>
       </main>
 

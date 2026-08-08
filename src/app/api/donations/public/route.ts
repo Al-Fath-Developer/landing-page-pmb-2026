@@ -9,8 +9,15 @@
 import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabaseServer";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    // Step 0: Parse optional pagination params (limit/offset) for the donor board
+    const { searchParams } = new URL(request.url);
+    const rawLimit = Number(searchParams.get("limit"));
+    const rawOffset = Number(searchParams.get("offset"));
+    const limit = Number.isInteger(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 50;
+    const offset = Number.isInteger(rawOffset) && rawOffset >= 0 ? rawOffset : 0;
+
     // Step 1: Query aggregate stats for verified PAID donations
     // Using supabaseServer privileged client to safely execute aggregates
     const supabase = getSupabaseServer();
@@ -40,7 +47,7 @@ export async function GET() {
       .from("public_donations")
       .select("id, display_name, amount, message, paid_at")
       .order("paid_at", { ascending: false })
-      .limit(50); // limit to latest 50 for page performance
+      .range(offset, offset + limit - 1); // paginated for page performance
 
     if (donorsError || !donorsData) {
       console.error("GET_PUBLIC_DONORS_FAILED:", donorsError);
