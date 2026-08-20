@@ -11,10 +11,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { 
   LogOut, Calendar, Search, FileDown, RefreshCw, 
-  ChevronLeft, ChevronRight, Eye, X, Check, Image as ImageIcon, AlertCircle
+  ChevronLeft, ChevronRight, Eye, X, Check, Image as ImageIcon, AlertCircle, Plus
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatWibDate, formatWibDateTime } from "@/lib/mieayam/timezone";
+import ManualDonationModal from "@/components/mieayam/ManualDonationModal";
 
 // Interface definitions
 interface KPIStats {
@@ -139,6 +140,10 @@ export default function Dashboard({ username, onLogout }: DashboardProps) {
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
 
+  // Manual donation modal states
+  const [manualModalOpen, setManualModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
   // Logout handler
   const handleLogoutClick = async () => {
     try {
@@ -149,6 +154,16 @@ export default function Dashboard({ username, onLogout }: DashboardProps) {
     } catch (err) {
       console.error("Logout request failed:", err);
     }
+  };
+
+  // Manual donation saved handler: close modal, refresh data, show summary
+  const handleManualSaved = (result: { count: number; totalAmount: number }) => {
+    setManualModalOpen(false);
+    setSuccessMessage(
+      `Berhasil menambahkan ${result.count} transaksi. Total ${formatCurrency(result.totalAmount)}.`
+    );
+    fetchDashboardData();
+    window.setTimeout(() => setSuccessMessage(""), 6000);
   };
 
   // Primary data fetcher
@@ -305,11 +320,29 @@ export default function Dashboard({ username, onLogout }: DashboardProps) {
           </div>
         )}
 
+        {/* 2b. Success message banner (manual donation saved) */}
+        {successMessage && (
+          <div className="border-[3px] border-black bg-emerald-50 p-4 text-sm font-black text-emerald-700 flex items-center gap-3 dark:border-white dark:bg-emerald-950/20 dark:text-emerald-300">
+            <Check size={20} className="shrink-0" />
+            <span>{successMessage}</span>
+          </div>
+        )}
+
         {/* 3. Filter Bar Control */}
         <section className="border-[3px] border-black bg-white p-5 shadow-shadow dark:bg-zinc-900 dark:border-white">
-          <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500 mb-3">
-            Filter Data Donasi
-          </h2>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+            <h2 className="text-xs font-black uppercase tracking-widest text-zinc-500">
+              Filter Data Donasi
+            </h2>
+
+            <Button
+              onClick={() => setManualModalOpen(true)}
+              className="border-[3px] border-black bg-accent-orange hover:bg-accent-orange/80 text-black font-black uppercase text-xs h-9 px-3 shadow-shadow cursor-pointer active:translate-y-[1px] transition-transform dark:border-white flex items-center gap-1.5"
+            >
+              <Plus size={14} />
+              <span>Input Donasi Manual</span>
+            </Button>
+          </div>
           
           <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-end justify-between">
             {/* Pickers */}
@@ -830,6 +863,14 @@ export default function Dashboard({ username, onLogout }: DashboardProps) {
           </div>
         </div>
       )}
+
+      {/* 7. Manual Donation Modal */}
+      <ManualDonationModal
+        key={manualModalOpen ? "manual-open" : "manual-closed"}
+        open={manualModalOpen}
+        onClose={() => setManualModalOpen(false)}
+        onSaved={handleManualSaved}
+      />
 
     </div>
   );
